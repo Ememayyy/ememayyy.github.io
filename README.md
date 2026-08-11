@@ -64,3 +64,14 @@ A good small stack is:
 - Database: Supabase Postgres
 
 Do not put private API tokens or database service keys inside `app.js`.
+
+
+## Momentum Rating
+
+The **Momentum Rating** is an experimental, CF-style recent-performance estimate.
+It intentionally gives strong recent form generous upside and can be substantially
+higher than a user's official rating.
+
+It is **not an official Codeforces rating**. Reproducing official Codeforces rating
+changes exactly requires contest standings and opponent ratings; this frontend uses
+the public user profile, submission history and contest rating history available to it.

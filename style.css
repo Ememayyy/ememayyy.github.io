@@ -171,3 +171,33 @@ footer{max-width:1180px;margin:0 auto;padding:25px 24px 45px;display:flex;justif
   .bar-row{grid-template-columns:95px 1fr 40px}
   footer{flex-direction:column;gap:7px}
 }
+
+
+/* Codeforces rank palette */
+.cf-newbie{color:#b0b0b0!important}
+.cf-pupil{color:#7bc8ff!important}
+.cf-specialist{color:#55e6a5!important}
+.cf-expert{color:#8aa7ff!important}
+.cf-candidate-master{color:#c77dff!important}
+.cf-master{color:#ff62d2!important}
+.cf-international-master{color:#ff626f!important}
+.cf-grandmaster,.cf-international-grandmaster{color:#ff4d4d!important}
+.cf-legendary-grandmaster{color:#ffcc4d!important;text-shadow:0 0 16px rgba(255,204,77,.25)}
+
+.momentum-metrics{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.momentum-rating-box{
+  min-width:190px;padding:14px 18px;border:1px solid rgba(124,92,255,.28);
+  border-radius:15px;background:rgba(124,92,255,.07)
+}
+.momentum-rating-box span{
+  display:block;color:#7e899b;font:700 9px "JetBrains Mono";
+  letter-spacing:.12em;text-transform:uppercase
+}
+.momentum-rating-box strong{
+  display:block;font:900 32px "JetBrains Mono";letter-spacing:-.05em;margin:5px 0 2px
+}
+.momentum-rating-box small{color:#626e80;font-size:9px}
+@media(max-width:650px){
+  .momentum-metrics{gap:15px}
+  .momentum-rating-box{min-width:160px}
+}

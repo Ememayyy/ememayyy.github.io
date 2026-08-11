@@ -35,25 +35,51 @@ function rankName(rating) {
 }
 
 function momentumRank(score) {
-  if (score < 20) return "Newbie";
-  if (score < 34) return "Pupil";
-  if (score < 48) return "Specialist";
-  if (score < 62) return "Expert";
-  if (score < 73) return "Candidate Master";
-  if (score < 82) return "Master";
-  if (score < 89) return "International Master";
-  if (score < 95) return "Grandmaster";
+  // Generous calibration: strong recent form can move well above official rank.
+  if (score < 16) return "Newbie";
+  if (score < 29) return "Pupil";
+  if (score < 43) return "Specialist";
+  if (score < 57) return "Expert";
+  if (score < 69) return "Candidate Master";
+  if (score < 79) return "Master";
+  if (score < 87) return "International Master";
+  if (score < 94) return "Grandmaster";
   if (score < 98) return "International Grandmaster";
   return "Legendary Grandmaster";
 }
 
+function rankFromRating(rating) {
+  if (rating < 1200) return "Newbie";
+  if (rating < 1400) return "Pupil";
+  if (rating < 1600) return "Specialist";
+  if (rating < 1900) return "Expert";
+  if (rating < 2100) return "Candidate Master";
+  if (rating < 2300) return "Master";
+  if (rating < 2400) return "International Master";
+  if (rating < 2600) return "Grandmaster";
+  if (rating < 3000) return "International Grandmaster";
+  return "Legendary Grandmaster";
+}
+
+
 function ratingColor(rank) {
   const map = {
-    "Newbie":"#b0b4bb","Pupil":"#67c2e8","Specialist":"#43e6a2","Expert":"#7c9cff",
-    "Candidate Master":"#b56dff","Master":"#ff5dca","International Master":"#ff6b81",
-    "Grandmaster":"#ff4d4d","International Grandmaster":"#ff4d4d","Legendary Grandmaster":"#ffcf40"
+    "Newbie":"#b0b0b0",
+    "Pupil":"#7bc8ff",
+    "Specialist":"#55e6a5",
+    "Expert":"#8aa7ff",
+    "Candidate Master":"#c77dff",
+    "Master":"#ff62d2",
+    "International Master":"#ff626f",
+    "Grandmaster":"#ff4d4d",
+    "International Grandmaster":"#ff4d4d",
+    "Legendary Grandmaster":"#ffcc4d"
   };
   return map[rank] || "#fff";
+}
+
+function momentumRatingColor(rating) {
+  return ratingColor(rankFromRating(rating));
 }
 
 function formatNumber(n) {
@@ -86,10 +112,9 @@ function calculateMomentum(profile, submissions, ratings) {
   const maxProblemRating = ratedProblems.length
     ? Math.max(...ratedProblems.map(p=>p.rating)) : 0;
 
-  const activeDaysSet = new Set(
+  const activeDays = new Set(
     recentSubs.map(s => new Date(s.creationTimeSeconds*1000).toISOString().slice(0,10))
-  );
-  const activeDays = activeDaysSet.size;
+  ).size;
 
   const recentRatings = ratings.filter(r => daysAgo(r.ratingUpdateTimeSeconds));
   const contestCount = recentRatings.length;
@@ -98,44 +123,57 @@ function calculateMomentum(profile, submissions, ratings) {
   const contestPeak = contestCount
     ? Math.max(...recentRatings.map(r=>r.newRating)) : profile.rating || 0;
 
-  const acceptedScore = percentileScore(problems.length, 3, 35);
-  const difficultyScore = percentileScore(avgProblemRating, 1100, 2100);
-  const activityScore = percentileScore(activeDays, 2, 24);
-  const submissionScore = percentileScore(recentSubs.length, 5, 180);
-  const contestScore = percentileScore(avgContestRating, 1200, 2800);
-  const peakScore = percentileScore(contestPeak, 1400, 3200);
-  const contributionScore = percentileScore(Math.max(0, profile.contribution || 0), 0, 100);
+  // More forgiving than the first version: activity and hard solves get rewarded.
+  const acceptedScore = percentileScore(problems.length, 1, 28);
+  const difficultyScore = percentileScore(avgProblemRating, 1050, 1950);
+  const activityScore = percentileScore(activeDays, 1, 20);
+  const submissionScore = percentileScore(recentSubs.length, 3, 150);
+  const contestScore = percentileScore(avgContestRating, 1100, 2700);
+  const peakScore = percentileScore(contestPeak, 1300, 3100);
+  const contributionScore = percentileScore(Math.max(0, profile.contribution || 0), 0, 80);
 
   let raw =
-    acceptedScore * 18 +
-    difficultyScore * 25 +
-    activityScore * 17 +
-    submissionScore * 8 +
+    acceptedScore * 16 +
+    difficultyScore * 28 +
+    activityScore * 16 +
+    submissionScore * 6 +
     contestScore * 20 +
-    peakScore * 7 +
+    peakScore * 9 +
     contributionScore * 5;
 
-  // A light adjustment: consistent activity matters more when the accepted
-  // problems are also difficult.
-  const consistencyBonus = (activityScore * difficultyScore) * 5;
-  raw += consistencyBonus;
-
+  raw += activityScore * difficultyScore * 8;
   const score = Math.round(Math.max(0, Math.min(100, raw)));
 
+  /*
+    Momentum Rating is a CF-style recent-performance estimate.
+    It is NOT an official Codeforces rating: exact CF rating changes need
+    contest standings/opponents. This estimate intentionally has generous upside.
+  */
+  const base = profile.rating || 0;
+  const difficultyPerformance = ratedProblems.length
+    ? avgProblemRating + Math.max(0, maxProblemRating - avgProblemRating) * 0.18
+    : base;
+
+  let momentumRating =
+    base * 0.36 +
+    difficultyPerformance * 0.29 +
+    (contestCount ? avgContestRating : base) * 0.25 +
+    (contestCount ? contestPeak : base) * 0.10;
+
+  momentumRating +=
+    Math.max(0, activeDays - 4) * 5 +
+    Math.max(0, problems.length - 5) * 2.2 +
+    Math.max(0, avgProblemRating - base) * 0.20;
+
+  // Prevent a hot streak from being trapped by a low official rating.
+  momentumRating = Math.max(momentumRating, 1050 + score * 19.5);
+  momentumRating = Math.round(Math.max(800, Math.min(3500, momentumRating)));
+
   return {
-    recentSubs,
-    accepted,
-    problems,
-    ratedProblems,
-    avgProblemRating,
-    maxProblemRating,
-    activeDays,
-    contestCount,
-    recentRatings,
-    avgContestRating,
-    contestPeak,
-    score,
-    rank: momentumRank(score),
+    recentSubs, accepted, problems, ratedProblems, avgProblemRating,
+    maxProblemRating, activeDays, contestCount, recentRatings,
+    avgContestRating, contestPeak, score, rank: momentumRank(score),
+    momentumRating,
     components: {
       "Accepted problems": Math.round(acceptedScore*100),
       "Problem difficulty": Math.round(difficultyScore*100),
@@ -179,6 +217,8 @@ function render(profile, result) {
   $("momentumRank").textContent = result.rank;
   $("momentumRank").style.color = ratingColor(result.rank);
   $("momentumScore").textContent = result.score;
+  $("momentumRating").textContent = result.momentumRating;
+  $("momentumRating").style.color = ratingColor(result.rank);
   $("gaugeValue").textContent = result.score;
   const degrees = result.score * 3.6;
   $("gaugeValue").style.color = ratingColor(result.rank);
@@ -192,7 +232,9 @@ function render(profile, result) {
   } else {
     relation = `Your recent activity is broadly consistent with your current ${actual} rating level.`;
   }
-  $("momentumDescription").textContent = relation;
+  $("momentumDescription").textContent =
+    relation + ` Momentum Rating: ${result.momentumRating}, a CF-style estimate of recent performance.`;
+
 
   $("acceptedCount").textContent = formatNumber(result.problems.length);
   $("acceptedSub").textContent = `${result.accepted.length} accepted submissions`;
