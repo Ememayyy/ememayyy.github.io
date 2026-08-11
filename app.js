@@ -1,11 +1,23 @@
 const API = "https://codeforces.com/api/";
 const DAYS = 30;
 const MAX_SUBMISSIONS = 1000;
+const SITE_VERSION = "v9.0.0";
 
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 let lastApiCall = 0;
+
+function makeCodeforcesHandleLink(el, handle) {
+  if (!el || !handle) return;
+  const a = document.createElement("a");
+  a.className = "handle-profile-link";
+  a.href = "https://codeforces.com/profile/" + encodeURIComponent(handle);
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.textContent = handle;
+  el.replaceChildren(a);
+}
 
 async function cf(method, params = {}) {
   const now = Date.now();
@@ -218,20 +230,40 @@ function contestBucket(contest) {
   const name=String(contest.name||"").toLowerCase();
   if(contest.type==="EDU"||name.includes("educational")) return "EDU";
   if(contest.type==="ICPC"||/\bicpc\b|nwerc|neerc|regional|world finals|\bwf\b/.test(name)) return "ICPC";
-  if(/\bdiv\.?\s*1\b|\bdivision\s*1\b|\bdiv1\b/.test(name)) return "DIV1";
-  if(/\bdiv\.?\s*2\b|\bdivision\s*2\b|\bdiv2\b/.test(name)) return "DIV2";
+  const hasDiv1=/\bdiv\.?\s*1\b|\bdivision\s*1\b|\bdiv1\b/.test(name);
+  const hasDiv2=/\bdiv\.?\s*2\b|\bdivision\s*2\b|\bdiv2\b/.test(name);
+  if(hasDiv1 && hasDiv2) return "DIV1_2";
+  if(hasDiv1) return "DIV1";
+  if(hasDiv2) return "DIV2";
   if(/\bdiv\.?\s*3\b|\bdivision\s*3\b|\bdiv3\b/.test(name)) return "DIV3";
   if(/\bdiv\.?\s*4\b|\bdivision\s*4\b|\bdiv4\b/.test(name)) return "DIV4";
   return "OTHER";
 }
+
 function isRatedContest(contest) {
   const name=String(contest.name||"").toLowerCase();
   if(contest.type==="IOI"||contest.type==="ICPC") return false;
   if(/unrated|practice|virtual|testing|icpc|nwerc|neerc|regional|world finals/.test(name)) return false;
   if(contest.phase!=="BEFORE"&&contest.phase!=="FINISHED") return false;
-  if(contest.type==="EDU") return true;
-  if(/\bdiv\.?\s*[1-4]\b|\bdivision\s*[1-4]\b|\bdiv[1-4]\b/.test(name)) return true;
-  return contest.type==="CF";
+  return contest.type==="EDU" || contest.type==="CF" || contestBucket(contest)!=="OTHER";
+}
+
+// Codeforces division rating eligibility for the user's current rating.
+// Div. 3: rated only below 1600.
+// Div. 2 / Educational: rated only below 2100.
+// Div. 1: rated from 1900 upward.
+// Parallel Div. 1 + Div. 2 rounds are rated for both ranges.
+function isRatedForUser(contest, userRating) {
+  if(!isRatedContest(contest)) return false;
+  const bucket=contestBucket(contest);
+  const rating=Number(userRating);
+  if(!Number.isFinite(rating)) return false;
+  if(bucket==="DIV1_2") return true;
+  if(bucket==="DIV1") return rating >= 1900;
+  if(bucket==="DIV2" || bucket==="EDU") return rating < 2100;
+  if(bucket==="DIV3") return rating < 1600;
+  if(bucket==="DIV4") return rating < 1400;
+  return true;
 }
 
 function recentRatingForm(ratings) {
@@ -278,7 +310,7 @@ function expectedContestDelta(result,contest) {
   const tw=typed.confidence*0.58;
   let delta=typed.delta*tw+overall.avgDelta*(1-tw);
   delta+=Math.max(-15,Math.min(15,overall.trend))*0.08;
-  const formatAdjustment={DIV1:3,DIV2:1,DIV3:-1,DIV4:-2,EDU:0,OTHER:0}[bucket]||0;
+  const formatAdjustment={DIV1:3,DIV1_2:2,DIV2:1,DIV3:-1,DIV4:-2,EDU:0,OTHER:0}[bucket]||0;
   delta+=formatAdjustment*0.35;
   delta=Math.round(Math.max(-90,Math.min(90,delta)));
   const uncertainty=Math.round(Math.max(9,Math.min(24,
@@ -392,19 +424,19 @@ function drawRatingChart(history) {
 function renderContestForecasts(result,contests) {
   const box=$("contestForecasts"); if(!box)return;
   const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
-  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedContest(c))
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedForUser(c,result.currentRating))
     .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
   if(!upcoming.length){box.innerHTML='<div class="analysis-empty">No upcoming rated contests found in the next 30 days.</div>';return;}
   box.innerHTML=upcoming.map(c=>{
     const f=expectedContestDelta(result,c), cls=f.delta>2?"delta-up":f.delta<-2?"delta-down":"delta-flat";
     const sign=f.delta>0?"+":"",date=new Date(c.startTimeSeconds*1000).toLocaleDateString(undefined,{month:"short",day:"numeric"});
-    return `<div class="contest-row"><div><div class="contest-name">${escapeHtml(c.name)}</div><div class="contest-date">${date} · ${f.bucket}${f.typeSample?` · ${f.typeSample} prior`:""}</div></div><div class="contest-delta ${cls}">${sign}${f.delta}<small>±${f.uncertainty}</small></div></div>`;
+    return `<div class="contest-row"><div><div class="contest-name">${escapeHtml(c.name)}</div><div class="contest-date">${date} · ${f.bucket.replace("DIV1_2","DIV1 + DIV2")}${f.typeSample?` · ${f.typeSample} prior`:""}</div></div><div class="contest-delta ${cls}">${sign}${f.delta}<small>±${f.uncertainty}</small></div></div>`;
   }).join("");
 }
 
 function renderRealRatingForecast(result,contests) {
   const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
-  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedContest(c))
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedForUser(c,result.currentRating))
     .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
   const current=result.currentRating;
   if(!upcoming.length){
@@ -435,8 +467,12 @@ async function enrichRatingHistoryWithContestTypes(ratings) {
   }
 }
 
-function setLoading(text) {
+function setLoading(text, step=1) {
   $("loadingText").textContent = text;
+  const fill=$("loadingProgressFill");
+  const stepEl=$("loadingStep");
+  if(fill) fill.style.width = `${Math.max(8, Math.min(100, step * 25))}%`;
+  if(stepEl) stepEl.textContent = `STEP ${step}/4`;
 }
 
 function showLoading(on) {
@@ -561,18 +597,18 @@ async function analyze(handle) {
   $("analyzeBtn").disabled = true;
 
   try {
-    setLoading("Fetching Codeforces profile...");
+    setLoading("Fetching Codeforces profile...",1);
     const users = await cf("user.info", {handles: handle});
     if (!users.length) throw new Error("User not found.");
     const profile = users[0];
 
-    setLoading("Fetching recent submissions...");
+    setLoading("Fetching recent submissions...",2);
     const submissions = await cf("user.status", {handle: profile.handle, from: 1, count: MAX_SUBMISSIONS});
 
-    setLoading("Fetching contest rating history...");
+    setLoading("Fetching contest rating history...",3);
     const ratings = await cf("user.rating", {handle: profile.handle});
 
-    setLoading("Calculating the last 30 days...");
+    setLoading("Applying momentum and rating eligibility rules...",4);
     const enrichedRatings = await enrichRatingHistoryWithContestTypes(ratings);
     const result = calculateMomentum(profile, submissions, enrichedRatings);
     render(profile, result);
@@ -603,6 +639,9 @@ document.querySelectorAll("[data-handle]").forEach(btn => {
 });
 
 
+const versionEls = document.querySelectorAll("[data-site-version]");
+versionEls.forEach(el => el.textContent = SITE_VERSION);
+
 const themeToggle = $("themeToggle");
 const savedTheme = localStorage.getItem("cfdm-theme");
 if(savedTheme === "light") document.body.classList.add("light-theme");
@@ -616,3 +655,12 @@ if(themeToggle) themeToggle.addEventListener("click",()=>{
   updateThemeButton();
 });
 window.addEventListener("resize",()=>{ const r=window.__lastResult,p=window.__lastProfile; if(r&&p&&!$("dashboard").classList.contains("hidden")) drawRatingChart(r.recentRatings); });
+
+window.addEventListener("load", () => {
+  const boot = $("bootLoader");
+  const main = $("siteMain");
+  setTimeout(() => {
+    if (boot) boot.classList.add("ready");
+    if (main) main.classList.add("ready");
+  }, 450);
+});

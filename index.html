@@ -10,6 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+
+<style id="profile-link-style">
+.handle-profile-link,.footer-author-link{color:inherit;text-decoration:none;cursor:pointer}
+.handle-profile-link:hover,.footer-author-link:hover{text-decoration:underline;text-underline-offset:4px;opacity:.85}
+</style>
 </head>
 <body>
   <div class="ambient ambient-a"></div>
@@ -23,10 +28,18 @@
     <div class="topbar-right">
       <span class="live-dot"></span>
       <span>Live Codeforces data</span>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle light and dark theme">☼ <span>Light</span></button>
     </div>
   </header>
 
-  <main>
+  <section id="bootLoader" class="boot-loader">
+    <div class="boot-orb">⚡</div>
+    <div class="boot-title">Codeforces <b>Daily Momentum</b></div>
+    <div class="boot-bar"><span></span></div>
+    <div class="boot-meta">INITIALIZING ANALYTICS ENGINE</div>
+  </section>
+
+  <main id="siteMain" class="site-main-loading">
     <section class="hero">
       <div class="eyebrow">RECENT FORM ANALYZER</div>
       <h1>Your rating tells a story.<br><span>Your momentum tells the present.</span></h1>
@@ -54,11 +67,12 @@
       </div>
     </section>
 
-    <section id="loading" class="state-card hidden">
-      <div class="spinner"></div>
-      <div>
+    <section id="loading" class="state-card hidden data-loader">
+      <div class="loader-visual"><div class="spinner"></div><span id="loadingStep">STEP 1/4</span></div>
+      <div class="loader-copy">
         <strong>Analyzing recent form...</strong>
         <p id="loadingText">Fetching profile data.</p>
+        <div class="loading-progress"><span id="loadingProgressFill"></span></div>
       </div>
     </section>
 
@@ -75,7 +89,7 @@
         <div class="profile">
           <img id="avatar" alt="" />
           <div>
-            <div class="profile-handle" id="profileHandle"></div>
+            <a class="profile-handle" id="profileHandle" href="#" target="_blank" rel="noopener noreferrer"></a>
             <div class="profile-meta">
               <span id="actualRank"></span>
               <span>•</span>
@@ -247,8 +261,14 @@
 </main>
 
   <footer>
-    <span>Codeforces Daily Momentum</span>
-    <span>Built for competitive programmers.</span>
+    <div class="footer-brand">
+      <span class="footer-title">Codeforces Daily Momentum</span>
+      <span class="footer-credit">Created with love by <a class="footer-author-link" href="https://codeforces.com/profile/EMEMAY" target="_blank" rel="noopener noreferrer"><strong>MohammadMahdi Afshar</strong></a> <a class="heart-link" href="https://codeforces.com/profile/EMEMAY" target="_blank" rel="noopener noreferrer" aria-label="Open EMEMAY Codeforces profile">❤️</a></span>
+    </div>
+    <div class="footer-meta">
+      <span>Built for competitive programmers</span>
+      <span class="footer-version">VERSION <b data-site-version>v9.0.0</b></span>
+    </div>
   </footer>
 
   <script src="app.js"></script>
