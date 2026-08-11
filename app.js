@@ -123,65 +123,73 @@ function calculateMomentum(profile, submissions, ratings) {
   const contestPeak = contestCount
     ? Math.max(...recentRatings.map(r=>r.newRating)) : profile.rating || 0;
 
-  // More forgiving than the first version: activity and hard solves get rewarded.
+  /*
+    Weighted model.
+    More important:
+      1) Accepted volume
+      2) Contest form
+      3) Problem difficulty
+      4) Consistency
+      5) Submission volume
+    Contribution is deliberately NOT used.
+  */
   const acceptedScore = percentileScore(problems.length, 1, 28);
   const difficultyScore = percentileScore(avgProblemRating, 1050, 1950);
   const activityScore = percentileScore(activeDays, 1, 20);
   const submissionScore = percentileScore(recentSubs.length, 3, 150);
   const contestScore = percentileScore(avgContestRating, 1100, 2700);
   const peakScore = percentileScore(contestPeak, 1300, 3100);
-  const contributionScore = percentileScore(Math.max(0, profile.contribution || 0), 0, 80);
 
+  // Weights sum to 100. Accepted count is slightly more important than difficulty.
   let raw =
-    acceptedScore * 16 +
-    difficultyScore * 28 +
-    activityScore * 16 +
-    submissionScore * 6 +
-    contestScore * 20 +
-    peakScore * 9 +
-    contributionScore * 5;
+    acceptedScore * 24 +
+    contestScore * 22 +
+    difficultyScore * 21 +
+    activityScore * 17 +
+    peakScore * 10 +
+    submissionScore * 6;
 
-  raw += activityScore * difficultyScore * 8;
+  // Consistency × difficulty bonus: sustained hard solving gets rewarded.
+  raw += activityScore * difficultyScore * 9;
+
+  // Small diminishing-return bonus for genuinely high solve volume.
+  raw += Math.sqrt(Math.max(0, acceptedScore)) * 3;
+
   const score = Math.round(Math.max(0, Math.min(100, raw)));
+  const rank = momentumRank(score);
 
-  /*
-    Momentum Rating is a CF-style recent-performance estimate.
-    It is NOT an official Codeforces rating: exact CF rating changes need
-    contest standings/opponents. This estimate intentionally has generous upside.
-  */
+  // CF-style recent-performance rating estimate.
   const base = profile.rating || 0;
   const difficultyPerformance = ratedProblems.length
     ? avgProblemRating + Math.max(0, maxProblemRating - avgProblemRating) * 0.18
     : base;
 
   let momentumRating =
-    base * 0.36 +
+    base * 0.34 +
     difficultyPerformance * 0.29 +
     (contestCount ? avgContestRating : base) * 0.25 +
-    (contestCount ? contestPeak : base) * 0.10;
+    (contestCount ? contestPeak : base) * 0.12;
 
   momentumRating +=
     Math.max(0, activeDays - 4) * 5 +
-    Math.max(0, problems.length - 5) * 2.2 +
+    Math.max(0, problems.length - 5) * 2.5 +
     Math.max(0, avgProblemRating - base) * 0.20;
 
-  // Prevent a hot streak from being trapped by a low official rating.
+  // Generous floor: a very strong month should be able to escape a low official rating.
   momentumRating = Math.max(momentumRating, 1050 + score * 19.5);
   momentumRating = Math.round(Math.max(800, Math.min(3500, momentumRating)));
 
   return {
     recentSubs, accepted, problems, ratedProblems, avgProblemRating,
     maxProblemRating, activeDays, contestCount, recentRatings,
-    avgContestRating, contestPeak, score, rank: momentumRank(score),
-    momentumRating,
+    avgContestRating, contestPeak, score, rank, momentumRating,
     components: {
-      "Accepted problems": Math.round(acceptedScore*100),
-      "Problem difficulty": Math.round(difficultyScore*100),
-      "Active days": Math.round(activityScore*100),
-      "Submission volume": Math.round(submissionScore*100),
+      "Accepted volume": Math.round(acceptedScore*100),
       "Contest form": Math.round(contestScore*100),
+      "Problem difficulty": Math.round(difficultyScore*100),
+      "Consistency": Math.round(activityScore*100),
       "Contest peak": Math.round(peakScore*100),
-      "Contribution": Math.round(contributionScore*100)
+      "Submission volume": Math.round(submissionScore*100)
     }
   };
 }
