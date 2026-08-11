@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b12" />
+  <meta name="description" content="Codeforces Daily Momentum — measure how strong your recent competitive programming form really is." />
+  <title>Codeforces Daily Momentum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#">
+      <span class="brand-mark">⚡</span>
+      <span>Codeforces <b>Daily Momentum</b></span>
+    </a>
+    <div class="topbar-right">
+      <span class="live-dot"></span>
+      <span>Live Codeforces data</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">RECENT FORM ANALYZER</div>
+      <h1>Your rating tells a story.<br><span>Your momentum tells the present.</span></h1>
+      <p class="hero-copy">
+        Enter a Codeforces handle and see how your last 30 days compare with the
+        performance level of the community.
+      </p>
+
+      <form id="searchForm" class="search-box">
+        <div class="input-wrap">
+          <span class="input-icon">@</span>
+          <input id="handleInput" type="text" placeholder="Enter Codeforces handle" autocomplete="off" spellcheck="false" required />
+        </div>
+        <button id="analyzeBtn" type="submit">
+          <span>Analyze Momentum</span>
+          <span class="arrow">→</span>
+        </button>
+      </form>
+
+      <div class="examples">
+        <span>Try:</span>
+        <button data-handle="tourist">tourist</button>
+        <button data-handle="Petr">Petr</button>
+        <button data-handle="Benq">Benq</button>
+      </div>
+    </section>
+
+    <section id="loading" class="state-card hidden">
+      <div class="spinner"></div>
+      <div>
+        <strong>Analyzing recent form...</strong>
+        <p id="loadingText">Fetching profile data.</p>
+      </div>
+    </section>
+
+    <section id="error" class="state-card error hidden">
+      <div class="error-icon">!</div>
+      <div>
+        <strong id="errorTitle">Could not analyze handle</strong>
+        <p id="errorText">Please check the handle and try again.</p>
+      </div>
+    </section>
+
+    <section id="dashboard" class="dashboard hidden">
+      <div class="profile-row">
+        <div class="profile">
+          <img id="avatar" alt="" />
+          <div>
+            <div class="profile-handle" id="profileHandle"></div>
+            <div class="profile-meta">
+              <span id="actualRank"></span>
+              <span>•</span>
+              <span id="actualRating"></span>
+              <span id="country"></span>
+            </div>
+          </div>
+        </div>
+        <div class="period-pill">LAST 30 DAYS</div>
+      </div>
+
+      <div class="momentum-card">
+        <div class="momentum-main">
+          <div class="section-label">CURRENT MOMENTUM</div>
+          <div class="momentum-rank" id="momentumRank">—</div>
+          <div class="momentum-score"><span id="momentumScore">0</span> / 100 momentum score</div>
+          <p id="momentumDescription"></p>
+        </div>
+        <div class="momentum-gauge">
+          <div class="gauge-ring">
+            <div class="gauge-inner">
+              <span id="gaugeValue">0</span>
+              <small>MOMENTUM</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-icon">✓</div>
+          <div class="stat-title">Accepted</div>
+          <div class="stat-value" id="acceptedCount">0</div>
+          <div class="stat-sub" id="acceptedSub">unique problems</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon">◈</div>
+          <div class="stat-title">Avg. Problem Rating</div>
+          <div class="stat-value" id="avgProblemRating">—</div>
+          <div class="stat-sub">accepted problems</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon">◷</div>
+          <div class="stat-title">Active Days</div>
+          <div class="stat-value" id="activeDays">0<span>/30</span></div>
+          <div class="stat-sub">days with submissions</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-icon">↗</div>
+          <div class="stat-title">Contests</div>
+          <div class="stat-value" id="contestCount">0</div>
+          <div class="stat-sub" id="contestSub">rated contests</div>
+        </article>
+      </div>
+
+      <div class="two-col">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="section-label">RECENT PERFORMANCE</div>
+              <h2>What is driving the momentum?</h2>
+            </div>
+          </div>
+          <div id="bars" class="bars"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="section-label">RATING SNAPSHOT</div>
+              <h2>Competitive form</h2>
+            </div>
+          </div>
+          <div class="rating-line">
+            <div>
+              <span>Current rating</span>
+              <strong id="currentRating2">—</strong>
+            </div>
+            <div>
+              <span>Best rating</span>
+              <strong id="maxRating">—</strong>
+            </div>
+          </div>
+          <div class="contest-list" id="contestList"></div>
+        </article>
+      </div>
+
+      <div class="panel methodology">
+        <div class="section-label">HOW IT WORKS</div>
+        <h2>Momentum is not your official rating.</h2>
+        <p>
+          Daily Momentum is an experimental recent-form index. It weighs the difficulty
+          of accepted problems, unique solves, active days, rated contests and Codeforces
+          contribution to estimate the competitive level your recent activity resembles.
+        </p>
+        <div class="formula">
+          <span>Recent form</span>
+          <b>+</b>
+          <span>Difficulty</span>
+          <b>+</b>
+          <span>Consistency</span>
+          <b>+</b>
+          <span>Contest form</span>
+          <b>+</b>
+          <span>Contribution</span>
+          <b>→</b>
+          <strong>Momentum Rank</strong>
+        </div>
+        <div class="notice">
+          This is a community-style metric, not an official Codeforces rating or ranking.
+          Very active users may exceed the first 1,000 recent submissions available to this
+          lightweight frontend analyzer.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Codeforces Daily Momentum</span>
+    <span>Built for competitive programmers.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
