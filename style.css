@@ -290,3 +290,48 @@ main{max-width:1240px;padding-left:18px;padding-right:18px}
   .momentum-rating-box strong{margin:0}
   .momentum-rating-box small{margin-left:auto}
 }
+
+/* ===== V4: Aurora / Pearl themes ===== */
+:root{
+  --bg:#07080d;--panel:rgba(17,16,25,.76);--panel-2:#10101a;--line:rgba(255,255,255,.10);
+  --text:#f7f4ff;--muted:#9b97aa;--accent:#ff4fd8;--accent-2:#8b5cff;--good:#6dffb8;--warning:#ffc857;--danger:#ff6687;
+}
+body{background:radial-gradient(800px 520px at 12% -5%,rgba(255,79,216,.16),transparent 62%),radial-gradient(760px 500px at 92% 25%,rgba(139,92,255,.15),transparent 62%),#07080d}
+body:before{opacity:.18;background-size:56px 56px}
+.ambient-a{background:#ff3fc8}.ambient-b{background:#713cff}
+.brand-mark{background:linear-gradient(135deg,#ff4fd8,#7b5cff);box-shadow:0 0 30px rgba(255,79,216,.25)}
+.live-dot{background:#6dffb8;box-shadow:0 0 12px #6dffb8}
+.eyebrow,.section-label{color:#ff77df}
+.hero h1 span{background:linear-gradient(90deg,#fff,#ff79dd 45%,#9d7cff);-webkit-background-clip:text;background-clip:text}
+.search-box button{background:linear-gradient(135deg,#ff4fcf,#765bff);box-shadow:0 12px 35px rgba(255,79,216,.18)}
+.period-pill{color:#ff83df;border-color:rgba(255,79,216,.28);background:rgba(255,79,216,.07)}
+.momentum-card{background:radial-gradient(550px 300px at 8% 50%,rgba(255,79,216,.13),transparent 68%),linear-gradient(120deg,rgba(35,18,40,.94),rgba(15,15,25,.96));border-color:rgba(255,79,216,.24)}
+.momentum-card:after{background:rgba(255,79,216,.12)}
+.bar-fill{background:linear-gradient(90deg,#ff4fd8,#845cff)}
+.formula strong{color:#ff8de4;border-color:rgba(255,79,216,.25)}
+.notice{border-left-color:#ff4fd8;background:rgba(255,79,216,.045)}
+.theme-toggle{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:6px 9px;cursor:pointer;font:700 10px "JetBrains Mono"}
+.theme-toggle:hover{color:var(--text);border-color:rgba(255,79,216,.35)}
+.analysis-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}
+.chart-wrap{height:255px;position:relative}
+.chart-wrap canvas{width:100%;height:100%}
+.forecast-number{font:900 38px "JetBrains Mono";letter-spacing:-.06em;margin:4px 0}
+.forecast-range{color:var(--muted);font:600 11px "JetBrains Mono"}
+.forecast-note{font-size:11px;color:#777285;line-height:1.65;margin-top:12px}
+.upcoming-list{display:grid;gap:8px;margin-top:14px}
+.upcoming-item{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
+.upcoming-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upcoming-time{font:600 9px "JetBrains Mono";color:#8f8a9b;white-space:nowrap}
+.light-theme{--bg:#f5f3fa;--panel:rgba(255,255,255,.78);--panel-2:#fff;--line:rgba(37,28,55,.10);--text:#17131f;--muted:#6f687b;--accent:#d52bb1;--accent-2:#6847dc;--good:#159a63;--warning:#b87900;--danger:#d83c62}
+body.light-theme{background:radial-gradient(800px 500px at 8% -8%,rgba(255,79,216,.13),transparent 60%),radial-gradient(700px 500px at 95% 20%,rgba(104,71,220,.12),transparent 60%),#f5f3fa;color:var(--text)}
+.light-theme .topbar{background:rgba(245,243,250,.78)}
+.light-theme .search-box{background:rgba(255,255,255,.86);box-shadow:0 20px 60px rgba(57,40,75,.10)}
+.light-theme .stat-card,.light-theme .panel,.light-theme .state-card{background:rgba(255,255,255,.80);box-shadow:0 12px 40px rgba(57,40,75,.07)}
+.light-theme .momentum-card{background:linear-gradient(120deg,rgba(255,240,251,.96),rgba(241,238,255,.96))}
+.light-theme .gauge-inner{background:#fff}
+.light-theme .contest-item,.light-theme .rating-line>div,.light-theme .formula span,.light-theme .formula strong{background:rgba(104,71,220,.035)}
+.light-theme .bar-track{background:#e9e4f0}
+.light-theme .hero h1 span{background:linear-gradient(90deg,#201827,#d52bb1 45%,#6847dc);-webkit-background-clip:text;background-clip:text}
+.light-theme .hero h1,.light-theme .profile-handle,.light-theme .panel h2{color:#17131f}
+.light-theme .hero-copy,.light-theme .momentum-main p,.light-theme .methodology>p{color:#6f687b}
+@media(max-width:800px){.analysis-grid{grid-template-columns:1fr}.chart-wrap{height:220px}.topbar{padding-left:15px;padding-right:15px}.theme-toggle span{display:none}}
