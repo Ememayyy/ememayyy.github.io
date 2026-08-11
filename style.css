@@ -335,3 +335,58 @@ body.light-theme{background:radial-gradient(800px 500px at 8% -8%,rgba(255,79,21
 .light-theme .hero h1,.light-theme .profile-handle,.light-theme .panel h2{color:#17131f}
 .light-theme .hero-copy,.light-theme .momentum-main p,.light-theme .methodology>p{color:#6f687b}
 @media(max-width:800px){.analysis-grid{grid-template-columns:1fr}.chart-wrap{height:220px}.topbar{padding-left:15px;padding-right:15px}.theme-toggle span{display:none}}
+
+.profile-link{color:inherit;text-decoration:none;cursor:pointer}
+.profile-link:hover{text-decoration:underline;text-underline-offset:4px}
+.analysis-section{margin-top:26px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;margin:0 2px 12px}
+.section-heading h2{margin:5px 0 0;font-size:22px;letter-spacing:-.035em}
+.analysis-note,.mini-label{font:700 9px "JetBrains Mono";letter-spacing:.12em;text-transform:uppercase;color:#768195}
+.analysis-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:12px}
+.analysis-panel,.forecast-summary{
+  border:1px solid rgba(255,255,255,.08);border-radius:20px;
+  padding:19px;background:linear-gradient(145deg,rgba(18,24,37,.78),rgba(9,13,21,.82));
+  box-shadow:0 18px 55px rgba(0,0,0,.16);backdrop-filter:blur(16px)
+}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.panel-head strong{display:block;font-size:18px;margin-top:4px}
+.chart-legend{font:600 9px "JetBrains Mono";color:#9ba6b8}.chart-legend i{
+  display:inline-block;width:7px;height:7px;border-radius:50%;background:#9d7cff;margin-right:5px
+}
+.chart-wrap{position:relative;height:230px}
+#ratingChart{width:100%;height:230px;display:block}
+.contest-forecasts{display:grid;gap:8px;max-height:286px;overflow:auto;padding-right:2px}
+.contest-row{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:12px;border-radius:13px;background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.055)
+}
+.contest-name{font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.contest-date{font:8px "JetBrains Mono";color:#687487;margin-top:4px}
+.contest-delta{font:800 16px "JetBrains Mono"}
+.contest-delta small{display:block;text-align:right;font:7px "JetBrains Mono";color:#687487;margin-top:2px}
+.delta-up{color:#55e6a5}.delta-down{color:#ff6f8d}.delta-flat{color:#aab3c2}
+.forecast-summary{margin-top:12px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.forecast-summary strong{display:block;font:900 28px "JetBrains Mono";margin-top:5px}
+.forecast-summary p{margin:5px 0 0;color:#788396;font-size:10px}
+.forecast-range{font:800 15px "JetBrains Mono";padding:13px 15px;border:1px solid rgba(157,124,255,.22);border-radius:13px;background:rgba(157,124,255,.06)}
+.data-loading{position:relative;overflow:hidden}
+.data-loading:after{
+  content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  animation:shimmer 1.15s infinite
+}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.result-reveal{animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both}
+@media(max-width:760px){
+  .analysis-grid{grid-template-columns:1fr}
+  .analysis-panel{padding:15px;border-radius:17px}
+  .section-heading h2{font-size:19px}
+  .forecast-summary{align-items:flex-start;flex-direction:column}
+  .forecast-range{width:100%;box-sizing:border-box}
+}
+
+#performanceAnalysis.result-reveal{
+  animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both;
+}

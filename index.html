@@ -23,7 +23,6 @@
     <div class="topbar-right">
       <span class="live-dot"></span>
       <span>Live Codeforces data</span>
-      <button id="themeToggle" class="theme-toggle" type="button" title="Toggle theme">☼ <span>Theme</span></button>
     </div>
   </header>
 
@@ -173,32 +172,6 @@
         </article>
       </div>
 
-      <section class="analysis-grid">
-        <article class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="section-label">30-DAY TREND</div>
-              <h2>Rating & momentum trajectory</h2>
-            </div>
-          </div>
-          <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="section-label">NEXT 30 DAYS</div>
-              <h2>Momentum forecast</h2>
-            </div>
-          </div>
-          <div class="forecast-number" id="forecastRating">—</div>
-          <div class="forecast-range" id="forecastRange">—</div>
-          <p class="forecast-note" id="forecastNote">Forecast is based on recent form and the current Codeforces contest calendar.</p>
-          <div class="section-label" style="margin-top:18px">UPCOMING CONTESTS</div>
-          <div class="upcoming-list" id="upcomingList"></div>
-        </article>
-      </section>
-
       <div class="panel methodology">
         <div class="section-label">HOW IT WORKS</div>
         <h2>Momentum is not your official rating.</h2>
@@ -225,7 +198,53 @@
         </div>
       </div>
     </section>
-  </main>
+  
+<section class="analysis-section hidden" id="performanceAnalysis">
+  <div class="section-heading">
+    <div>
+      <div class="section-label">PERFORMANCE ANALYSIS</div>
+      <h2>Recent rating trajectory</h2>
+    </div>
+    <span class="analysis-note">official rating history · rated contests only</span>
+  </div>
+
+  <div class="analysis-grid">
+    <div class="analysis-panel chart-panel">
+      <div class="panel-head">
+        <div>
+          <span class="mini-label">OFFICIAL RATING</span>
+          <strong id="chartCurrentRating">—</strong>
+        </div>
+        <div class="chart-legend"><i></i> Rating</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="ratingChart" height="230"></canvas>
+      </div>
+    </div>
+
+    <div class="analysis-panel">
+      <div class="panel-head">
+        <div>
+          <span class="mini-label">NEXT CONTESTS</span>
+          <strong>Real rating change by contest</strong>
+        </div>
+      </div>
+      <div id="contestForecasts" class="contest-forecasts">
+        <div class="analysis-empty">Analyze a handle to estimate upcoming contest results.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analysis-panel forecast-summary">
+    <div>
+      <span class="mini-label">NEXT 30 DAYS · REAL RATING FORECAST</span>
+      <strong id="ratingForecast">—</strong>
+      <p id="ratingForecastText">Based on recent rated-contest performance.</p>
+    </div>
+    <div class="forecast-range" id="forecastRange">—</div>
+  </div>
+</section>
+</main>
 
   <footer>
     <span>Codeforces Daily Momentum</span>

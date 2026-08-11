@@ -75,14 +75,3 @@ higher than a user's official rating.
 It is **not an official Codeforces rating**. Reproducing official Codeforces rating
 changes exactly requires contest standings and opponent ratings; this frontend uses
 the public user profile, submission history and contest rating history available to it.
-
-
-## V4 updates
-
-- Contribution has no effect on Momentum.
-- Momentum Rating is strictly constrained to the Codeforces-style range of the Momentum rank.
-- The consistency × difficulty bonus is intentionally small.
-- Added a responsive 30-day rating trend chart.
-- Added a 30-day forecast based on the currently upcoming Codeforces contests returned by the public contest API.
-- Added a new Aurora dark theme and a Pearl light theme with a persistent theme toggle.
-- The forecast is a scenario estimate, not an official Codeforces rating prediction.

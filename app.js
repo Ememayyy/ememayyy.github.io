@@ -133,149 +133,306 @@ function calculateMomentum(profile, submissions, ratings) {
   const problems = [...uniqueAccepted.values()];
   const ratedProblems = problems.filter(p => Number.isFinite(p.rating));
   const avgProblemRating = ratedProblems.length
-    ? ratedProblems.reduce((a,p)=>a+p.rating,0)/ratedProblems.length : 0;
+    ? ratedProblems.reduce((a,p) => a + p.rating, 0) / ratedProblems.length : 0;
   const maxProblemRating = ratedProblems.length
-    ? Math.max(...ratedProblems.map(p=>p.rating)) : 0;
+    ? Math.max(...ratedProblems.map(p => p.rating)) : 0;
 
   const activeDays = new Set(
-    recentSubs.map(s => new Date(s.creationTimeSeconds*1000).toISOString().slice(0,10))
+    recentSubs.map(s => new Date(s.creationTimeSeconds * 1000).toISOString().slice(0,10))
   ).size;
 
   const recentRatings = ratings.filter(r => daysAgo(r.ratingUpdateTimeSeconds));
   const contestCount = recentRatings.length;
   const avgContestRating = contestCount
-    ? recentRatings.reduce((a,r)=>a+r.newRating,0)/contestCount : profile.rating || 0;
+    ? recentRatings.reduce((a,r) => a + r.newRating, 0) / contestCount : profile.rating || 0;
   const contestPeak = contestCount
-    ? Math.max(...recentRatings.map(r=>r.newRating)) : profile.rating || 0;
+    ? Math.max(...recentRatings.map(r => r.newRating)) : profile.rating || 0;
 
-  /*
-    Weighted model.
-    More important:
-      1) Accepted volume
-      2) Contest form
-      3) Problem difficulty
-      4) Consistency
-      5) Submission volume
-    Contribution is deliberately NOT used.
-  */
   const acceptedScore = percentileScore(problems.length, 1, 28);
   const difficultyScore = percentileScore(avgProblemRating, 1050, 1950);
+  const highestSolvedScore = percentileScore(maxProblemRating, 1300, 2800);
   const activityScore = percentileScore(activeDays, 1, 20);
-  const submissionScore = percentileScore(recentSubs.length, 3, 150);
   const contestScore = percentileScore(avgContestRating, 1100, 2700);
-  const peakScore = percentileScore(contestPeak, 1300, 3100);
+  const contributionScore = percentileScore(Math.max(0, profile.contribution || 0), 0, 80);
 
-  // Weights sum to 100. Accepted count is slightly more important than difficulty.
-  let raw =
+  // Momentum v8: problem difficulty and the hardest solved problem are stronger.
+  // The six weights below sum to exactly 100.
+  const raw =
     acceptedScore * 24 +
-    contestScore * 22 +
-    difficultyScore * 21 +
-    activityScore * 17 +
-    peakScore * 10 +
-    submissionScore * 6;
-
-  // Consistency × difficulty bonus: sustained hard solving gets rewarded.
-  raw += activityScore * difficultyScore * 3;
-
-  // Small diminishing-return bonus for genuinely high solve volume.
-  raw += Math.sqrt(Math.max(0, acceptedScore)) * 3;
+    difficultyScore * 32 +
+    highestSolvedScore * 12 +
+    contestScore * 18 +
+    activityScore * 9 +
+    contributionScore * 5;
 
   const score = Math.round(Math.max(0, Math.min(100, raw)));
   const rank = momentumRank(score);
 
-  // Momentum Rating is strictly bounded inside the Momentum rank.
-  // This keeps e.g. Expert momentum between 1600 and 1899.
-  const momentumRating = momentumRatingFromScore(score);
+  const base = profile.rating || 0;
+  const difficultyPerformance = ratedProblems.length
+    ? avgProblemRating + Math.max(0, maxProblemRating - avgProblemRating) * 0.22
+    : base;
+
+  let momentumRating =
+    base * 0.30 +
+    difficultyPerformance * 0.34 +
+    (contestCount ? avgContestRating : base) * 0.20 +
+    (contestCount ? contestPeak : base) * 0.10 +
+    (ratedProblems.length ? maxProblemRating : base) * 0.06;
+
+  momentumRating +=
+    Math.max(0, activeDays - 4) * 2.5 +
+    Math.max(0, problems.length - 5) * 1.4 +
+    Math.max(0, avgProblemRating - base) * 0.10;
+
+  const bounds = momentumBounds(rank);
+  momentumRating = Math.max(bounds[0], Math.min(bounds[1], Math.round(momentumRating)));
+  if (!contestCount && !ratedProblems.length) momentumRating = Math.round((bounds[0] + bounds[1]) / 2);
 
   return {
     recentSubs, accepted, problems, ratedProblems, avgProblemRating,
     maxProblemRating, activeDays, contestCount, recentRatings,
     avgContestRating, contestPeak, score, rank, momentumRating,
+    currentRating: profile.rating || 0,
+    allRatings: ratings,
     components: {
-      "Accepted volume": Math.round(acceptedScore*100),
-      "Contest form": Math.round(contestScore*100),
-      "Problem difficulty": Math.round(difficultyScore*100),
-      "Consistency": Math.round(activityScore*100),
-      "Contest peak": Math.round(peakScore*100),
-      "Submission volume": Math.round(submissionScore*100)
+      "Accepted volume": Math.round(acceptedScore * 100),
+      "Problem difficulty": Math.round(difficultyScore * 100),
+      "Highest solved": Math.round(highestSolvedScore * 100),
+      "Contest form": Math.round(contestScore * 100),
+      "Consistency": Math.round(activityScore * 100),
+      "Contribution": Math.round(contributionScore * 100)
     }
   };
 }
 
-function drawTrendChart(profile, ratings, result) {
-  const canvas = $("trendChart");
+
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function contestBucket(contest) {
+  const name=String(contest.name||"").toLowerCase();
+  if(contest.type==="EDU"||name.includes("educational")) return "EDU";
+  if(contest.type==="ICPC"||/\bicpc\b|nwerc|neerc|regional|world finals|\bwf\b/.test(name)) return "ICPC";
+  if(/\bdiv\.?\s*1\b|\bdivision\s*1\b|\bdiv1\b/.test(name)) return "DIV1";
+  if(/\bdiv\.?\s*2\b|\bdivision\s*2\b|\bdiv2\b/.test(name)) return "DIV2";
+  if(/\bdiv\.?\s*3\b|\bdivision\s*3\b|\bdiv3\b/.test(name)) return "DIV3";
+  if(/\bdiv\.?\s*4\b|\bdivision\s*4\b|\bdiv4\b/.test(name)) return "DIV4";
+  return "OTHER";
+}
+function isRatedContest(contest) {
+  const name=String(contest.name||"").toLowerCase();
+  if(contest.type==="IOI"||contest.type==="ICPC") return false;
+  if(/unrated|practice|virtual|testing|icpc|nwerc|neerc|regional|world finals/.test(name)) return false;
+  if(contest.phase!=="BEFORE"&&contest.phase!=="FINISHED") return false;
+  if(contest.type==="EDU") return true;
+  if(/\bdiv\.?\s*[1-4]\b|\bdivision\s*[1-4]\b|\bdiv[1-4]\b/.test(name)) return true;
+  return contest.type==="CF";
+}
+
+function recentRatingForm(ratings) {
+  const recent = ratings.slice(-6);
+  if (!recent.length) return {avgDelta: 0, trend: 0, sample: 0};
+
+  let weightedSum = 0, weightSum = 0;
+  recent.forEach((r, i) => {
+    const weight = i + 1;
+    weightedSum += (r.newRating - r.oldRating) * weight;
+    weightSum += weight;
+  });
+
+  const avgDelta = weightedSum / weightSum;
+
+  const last3 = recent.slice(-3).map(r => r.newRating - r.oldRating);
+  const prev3 = recent.slice(-6, -3).map(r => r.newRating - r.oldRating);
+  const avgLast = last3.length
+    ? last3.reduce((a,b) => a+b, 0) / last3.length : avgDelta;
+  const avgPrev = prev3.length
+    ? prev3.reduce((a,b) => a+b, 0) / prev3.length : avgLast;
+
+  return {
+    avgDelta,
+    trend: avgLast - avgPrev,
+    sample: recent.length
+  };
+}
+
+
+function typePerformance(result,bucket) {
+  const typed=(result.allRatings||[])
+    .filter(r=>contestBucket(r.contestMeta||{})===bucket).slice(-6);
+  if(!typed.length) return {delta:0,sample:0,confidence:0};
+  let sum=0,weights=0;
+  typed.forEach((r,i)=>{const w=i+1;sum+=(r.newRating-r.oldRating)*w;weights+=w;});
+  return {delta:sum/weights,sample:typed.length,confidence:Math.min(1,typed.length/5)};
+}
+function expectedContestDelta(result,contest) {
+  if(!isRatedContest(contest)) return null;
+  const overall=recentRatingForm(result.recentRatings);
+  const bucket=contestBucket(contest);
+  const typed=typePerformance(result,bucket);
+  const tw=typed.confidence*0.58;
+  let delta=typed.delta*tw+overall.avgDelta*(1-tw);
+  delta+=Math.max(-15,Math.min(15,overall.trend))*0.08;
+  const formatAdjustment={DIV1:3,DIV2:1,DIV3:-1,DIV4:-2,EDU:0,OTHER:0}[bucket]||0;
+  delta+=formatAdjustment*0.35;
+  delta=Math.round(Math.max(-90,Math.min(90,delta)));
+  const uncertainty=Math.round(Math.max(9,Math.min(24,
+    11+(1-typed.confidence)*7+
+    (bucket==="DIV1"?2:(bucket==="EDU"||bucket==="DIV3"||bucket==="DIV4"?1:0))
+  )));
+  return {delta,uncertainty,bucket,typeSample:typed.sample};
+}
+function drawRatingChart(history) {
+  const canvas = $("ratingChart");
   if (!canvas) return;
-  const rect = canvas.getBoundingClientRect();
+
+  const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = Math.max(1, rect.width*dpr);
-  canvas.height = Math.max(1, rect.height*dpr);
-  const c = canvas.getContext("2d");
-  c.scale(dpr,dpr);
-  const w=rect.width,h=rect.height;
-  const styles=getComputedStyle(document.body);
-  const text=styles.getPropertyValue("--muted").trim() || "#888";
-  const line=styles.getPropertyValue("--line").trim() || "rgba(255,255,255,.1)";
-  const accent=styles.getPropertyValue("--accent").trim() || "#ff4fd8";
-  const accent2=styles.getPropertyValue("--accent-2").trim() || "#8b5cff";
-  const pts=[];
-  const now=Date.now()/1000;
-  for(let i=29;i>=0;i--){
-    const t=now-i*86400;
-    let r=profile.rating||0;
-    const found=ratings.filter(x=>x.ratingUpdateTimeSeconds<=t).sort((a,b)=>b.ratingUpdateTimeSeconds-a.ratingUpdateTimeSeconds)[0];
-    if(found) r=found.newRating;
-    pts.push(r);
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(320, rect.width);
+  const height = 230;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!history.length) {
+    ctx.fillStyle = "#7b8799";
+    ctx.font = "11px JetBrains Mono";
+    ctx.fillText("No rated contests in the last 30 days.", 14, 28);
+    return;
   }
-  const min=Math.max(0,Math.min(...pts)-80), max=Math.max(...pts)+80;
-  const pad={l:12,r:10,t:18,b:28};
-  c.strokeStyle=line;c.lineWidth=1;
-  for(let i=0;i<4;i++){const y=pad.t+(h-pad.t-pad.b)*i/3;c.beginPath();c.moveTo(pad.l,y);c.lineTo(w-pad.r,y);c.stroke()}
-  const x=i=>pad.l+(w-pad.l-pad.r)*i/(pts.length-1);
-  const y=v=>h-pad.b-(v-min)/(max-min||1)*(h-pad.t-pad.b);
-  c.beginPath();pts.forEach((v,i)=>i?c.lineTo(x(i),y(v)):c.moveTo(x(i),y(v)));c.strokeStyle=accent2;c.lineWidth=2.5;c.stroke();
-  c.beginPath();c.moveTo(x(0),y(pts[0]));pts.forEach((v,i)=>c.lineTo(x(i),y(v)));c.lineTo(x(pts.length-1),h-pad.b);c.lineTo(x(0),h-pad.b);c.closePath();
-  const grad=c.createLinearGradient(0,pad.t,0,h-pad.b);grad.addColorStop(0,accent+'33');grad.addColorStop(1,accent+'00');c.fillStyle=grad;c.fill();
-  c.fillStyle=text;c.font='10px JetBrains Mono, monospace';c.fillText(Math.round(max),pad.l,11);c.fillText(Math.round(min),pad.l,h-6);
-  c.fillText('30d ago',pad.l,h-6);c.fillText('today',w-42,h-6);
-}
 
-async function loadUpcomingContests() {
-  const list=$("upcomingList");
-  if(!list) return [];
-  try{
-    const contests=await cf("contest.list",{});
-    const now=Math.floor(Date.now()/1000), end=now+30*86400;
-    const upcoming=contests.filter(c=>c.phase==="BEFORE" && c.startTimeSeconds>=now && c.startTimeSeconds<=end).sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds).slice(0,6);
-    list.innerHTML=upcoming.length?upcoming.map(c=>{
-      const d=new Date(c.startTimeSeconds*1000);
-      return `<div class="upcoming-item"><span class="upcoming-name">${escapeHtml(c.name)}</span><span class="upcoming-time">${d.toLocaleDateString([], {month:'short',day:'numeric'})}</span></div>`;
-    }).join(''):'<div class="contest-item"><span class="contest-name">No upcoming contests found.</span></div>';
-    return upcoming;
-  }catch(e){
-    list.innerHTML='<div class="contest-item"><span class="contest-name">Contest calendar unavailable right now.</span></div>';
-    return [];
+  const points = [
+    {
+      newRating: history[0].oldRating,
+      ratingUpdateTimeSeconds: history[0].ratingUpdateTimeSeconds - 1
+    },
+    ...history
+  ];
+
+  const values = points.map(p => p.newRating);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const padding = Math.max(35, Math.round((maxValue - minValue) * 0.18));
+  const min = minValue - padding;
+  const max = maxValue + padding;
+
+  const left = 14;
+  const right = 12;
+  const top = 18;
+  const bottom = 24;
+
+  const x = i =>
+    left + (width - left - right) *
+    (i / Math.max(1, points.length - 1));
+
+  const y = value =>
+    height - bottom -
+    (height - top - bottom) * ((value - min) / Math.max(1, max - min));
+
+  ctx.strokeStyle = "rgba(255,255,255,.07)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i < 4; i++) {
+    const gy = top + i * (height - top - bottom) / 3;
+    ctx.beginPath();
+    ctx.moveTo(left, gy);
+    ctx.lineTo(width - right, gy);
+    ctx.stroke();
   }
+
+  // Filled area.
+  const gradient = ctx.createLinearGradient(0, top, 0, height);
+  gradient.addColorStop(0, "rgba(157,124,255,.22)");
+  gradient.addColorStop(1, "rgba(157,124,255,0)");
+
+  ctx.beginPath();
+  ctx.moveTo(x(0), height - bottom);
+  points.forEach((p, i) => ctx.lineTo(x(i), y(p.newRating)));
+  ctx.lineTo(x(points.length - 1), height - bottom);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Rating line.
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(x(i), y(p.newRating));
+    else ctx.lineTo(x(i), y(p.newRating));
+  });
+  ctx.strokeStyle = "#9d7cff";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Points.
+  points.forEach((p, i) => {
+    ctx.beginPath();
+    ctx.arc(x(i), y(p.newRating), i === points.length - 1 ? 4 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#d7c9ff";
+    ctx.fill();
+  });
+
+  ctx.fillStyle = "#778397";
+  ctx.font = "9px JetBrains Mono";
+  ctx.fillText(`${Math.round(max)}`, left, 11);
+  ctx.fillText(`${Math.round(min)}`, left, height - 5);
+
+  $("chartCurrentRating").textContent =
+    `${points[points.length - 1].newRating}`;
 }
 
-function escapeHtml(s){return String(s).replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]));}
 
-function forecastRating(result, upcoming){
-  const base=result.momentumRating;
-  const count=upcoming.length;
-  const activityFactor=Math.min(1, result.activeDays/20);
-  const formFactor=result.score/100;
-  // Each upcoming contest contributes a small scenario-based upside.
-  const upside=Math.round(count*(7+22*activityFactor*formFactor));
-  const downside=Math.round(count*(5+(1-activityFactor)*7));
-  return {center:Math.max(800,Math.min(3500,base+upside)),lo:Math.max(800,base-downside),hi:Math.min(3500,base+upside+Math.round(upside*.7))};
+function renderContestForecasts(result,contests) {
+  const box=$("contestForecasts"); if(!box)return;
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedContest(c))
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+  if(!upcoming.length){box.innerHTML='<div class="analysis-empty">No upcoming rated contests found in the next 30 days.</div>';return;}
+  box.innerHTML=upcoming.map(c=>{
+    const f=expectedContestDelta(result,c), cls=f.delta>2?"delta-up":f.delta<-2?"delta-down":"delta-flat";
+    const sign=f.delta>0?"+":"",date=new Date(c.startTimeSeconds*1000).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    return `<div class="contest-row"><div><div class="contest-name">${escapeHtml(c.name)}</div><div class="contest-date">${date} · ${f.bucket}${f.typeSample?` · ${f.typeSample} prior`:""}</div></div><div class="contest-delta ${cls}">${sign}${f.delta}<small>±${f.uncertainty}</small></div></div>`;
+  }).join("");
 }
 
-function renderForecast(result, upcoming){
-  const f=forecastRating(result,upcoming);
-  $("forecastRating").textContent=f.center;
-  $("forecastRating").style.color=ratingColor(rankFromRating(f.center));
-  $("forecastRange").textContent=`Likely range: ${f.lo} — ${f.hi}`;
-  $("forecastNote").textContent=`Scenario-based 30-day forecast using recent form (${result.score}/100), active days, and ${upcoming.length} upcoming Codeforces contest${upcoming.length===1?'':'s'}. It is not a guaranteed rating prediction.`;
+function renderRealRatingForecast(result,contests) {
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedContest(c))
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+  const current=result.currentRating;
+  if(!upcoming.length){
+    $("ratingForecast").textContent=current;$("forecastRange").textContent=`${current} — ${current}`;
+    $("ratingForecastText").textContent="No upcoming rated contests are currently scheduled in the next 30 days.";return;
+  }
+  const fs=upcoming.map(c=>expectedContestDelta(result,c)).filter(Boolean);
+  const total=fs.reduce((a,f)=>a+f.delta,0);
+  const uncertainty=Math.round(Math.max(15,Math.min(45,Math.sqrt(fs.reduce((a,f)=>a+f.uncertainty*f.uncertainty,0))*0.65)));
+  const forecast=Math.round(current+total);
+  $("ratingForecast").textContent=forecast;$("forecastRange").textContent=`${forecast-uncertainty} — ${forecast+uncertainty}`;
+  const sign=total>0?"+":"";
+  $("ratingForecastText").textContent=`Current ${current} → expected ${sign}${total} rating change across ${fs.length} upcoming rated contest${fs.length===1?"":"s"} in the next 30 days. Unrated contests are excluded.`;
+}
+async function fetchUpcomingContests() {
+  const contests=await cf("contest.list",{gym:"false"});
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  return contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater)
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+}
+async function enrichRatingHistoryWithContestTypes(ratings) {
+  try {
+    const contests=await cf("contest.list",{gym:"false"});
+    const byId=new Map(contests.map(c=>[c.id,c]));
+    return ratings.map(r=>({...r,contestMeta:byId.get(r.contestId)||{}}));
+  } catch(e) {
+    return ratings.map(r=>({...r,contestMeta:{}}));
+  }
 }
 
 function setLoading(text) {
@@ -302,6 +459,7 @@ function render(profile, result) {
 
   $("avatar").src = profile.titlePhoto || profile.avatar || "";
   $("profileHandle").textContent = profile.handle;
+  $("profileHandle").href = `https://codeforces.com/profile/${encodeURIComponent(profile.handle)}`;
   $("actualRank").textContent = profile.rank || rankName(profile.rating || 0);
   $("actualRank").style.color = ratingColor(profile.rank || rankName(profile.rating || 0));
   $("actualRating").textContent = `${profile.rating ?? 0} rating`;
@@ -371,8 +529,25 @@ function render(profile, result) {
     });
   }
 
-  drawTrendChart(profile, result.recentRatings, result);
-  loadUpcomingContests().then(upcoming=>renderForecast(result, upcoming));
+  const analysis = $("performanceAnalysis");
+  analysis.classList.remove("hidden");
+  analysis.classList.remove("result-reveal");
+  void analysis.offsetWidth;
+  analysis.classList.add("result-reveal");
+
+  drawRatingChart(result.recentRatings);
+
+  fetchUpcomingContests()
+    .then(upcoming => {
+      renderContestForecasts(result, upcoming);
+      renderRealRatingForecast(result, upcoming);
+    })
+    .catch(err => {
+      console.error("Upcoming contests:", err);
+      renderContestForecasts(result, []);
+      renderRealRatingForecast(result, []);
+    });
+
   window.scrollTo({top: $("dashboard").offsetTop - 25, behavior:"smooth"});
 }
 
@@ -381,6 +556,7 @@ async function analyze(handle) {
   if (!handle) return;
   resetError();
   $("dashboard").classList.add("hidden");
+  $("performanceAnalysis").classList.add("hidden");
   showLoading(true);
   $("analyzeBtn").disabled = true;
 
@@ -397,7 +573,8 @@ async function analyze(handle) {
     const ratings = await cf("user.rating", {handle: profile.handle});
 
     setLoading("Calculating the last 30 days...");
-    const result = calculateMomentum(profile, submissions, ratings);
+    const enrichedRatings = await enrichRatingHistoryWithContestTypes(ratings);
+    const result = calculateMomentum(profile, submissions, enrichedRatings);
     render(profile, result);
   } catch (err) {
     console.error(err);
@@ -405,7 +582,7 @@ async function analyze(handle) {
       "Could not analyze handle",
       err.message.includes("limit") ?
         "Codeforces API is rate-limiting requests. Wait a few seconds and try again." :
-        `Make sure the handle exists and try again. (${err.message})`
+        `Could not load all Codeforces data. Please try again. (${err.message})`
     );
   } finally {
     showLoading(false);
@@ -435,7 +612,7 @@ if(themeToggle) themeToggle.addEventListener("click",()=>{
   document.body.classList.toggle("light-theme");
   localStorage.setItem("cfdm-theme",document.body.classList.contains("light-theme")?"light":"dark");
   const d=document.getElementById("dashboard");
-  if(d && !d.classList.contains("hidden")) { const r=window.__lastResult; const p=window.__lastProfile; if(r&&p) drawTrendChart(p,r.recentRatings,r); }
+  if(d && !d.classList.contains("hidden")) { const r=window.__lastResult; const p=window.__lastProfile; if(r&&p) drawRatingChart(r.recentRatings); }
   updateThemeButton();
 });
-window.addEventListener("resize",()=>{ const r=window.__lastResult,p=window.__lastProfile; if(r&&p&&!$("dashboard").classList.contains("hidden")) drawTrendChart(p,r.recentRatings,r); });
+window.addEventListener("resize",()=>{ const r=window.__lastResult,p=window.__lastProfile; if(r&&p&&!$("dashboard").classList.contains("hidden")) drawRatingChart(r.recentRatings); });
