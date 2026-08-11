@@ -9,7 +9,464 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
+  <style id="github-pages-embedded-style">
+:root{
+  --bg:#080b12;
+  --panel:rgba(16,21,32,.78);
+  --panel-2:rgba(12,17,27,.92);
+  --line:rgba(255,255,255,.09);
+  --text:#f3f6fb;
+  --muted:#8f9aab;
+  --accent:#7c5cff;
+  --accent-2:#35d7ff;
+  --good:#43e6a2;
+  --warning:#ffd166;
+  --danger:#ff6b81;
+  --radius:22px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:radial-gradient(circle at 50% -20%,#18213c 0,#080b12 45%);
+  color:var(--text);
+  font-family:Inter,system-ui,sans-serif;
+  min-height:100vh;
+}
+body:before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;opacity:.28;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+.ambient{position:fixed;filter:blur(90px);opacity:.22;pointer-events:none;border-radius:50%}
+.ambient-a{width:260px;height:260px;background:#6d4aff;top:120px;left:-120px}
+.ambient-b{width:260px;height:260px;background:#00cfff;right:-140px;top:420px}
+.topbar{
+  height:72px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 max(24px,calc((100vw - 1180px)/2));position:relative;z-index:2;
+  background:rgba(8,11,18,.62);backdrop-filter:blur(18px);
+}
+.brand{display:flex;gap:10px;align-items:center;color:var(--text);text-decoration:none;font-size:14px}
+.brand b{font-weight:800}
+.brand-mark{
+  display:grid;place-items:center;width:32px;height:32px;border-radius:10px;
+  background:linear-gradient(135deg,#7c5cff,#36d9ff);box-shadow:0 0 25px rgba(124,92,255,.28)
+}
+.topbar-right{font-size:12px;color:var(--muted);display:flex;gap:9px;align-items:center}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}
+main{max-width:1180px;margin:0 auto;padding:82px 24px 60px;position:relative;z-index:1}
+.hero{text-align:center;max-width:840px;margin:0 auto 60px}
+.eyebrow,.section-label{
+  font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;
+  color:#9b8cff;font-weight:700
+}
+.hero h1{font-size:clamp(40px,6vw,70px);line-height:1.02;letter-spacing:-.055em;margin:18px 0}
+.hero h1 span{
+  background:linear-gradient(90deg,#fff,#9a8cff 45%,#55dfff);
+  -webkit-background-clip:text;background-clip:text;color:transparent
+}
+.hero-copy{color:var(--muted);font-size:16px;line-height:1.7;max-width:650px;margin:0 auto 30px}
+.search-box{
+  display:flex;gap:10px;max-width:720px;margin:auto;padding:8px;
+  border:1px solid var(--line);border-radius:18px;background:rgba(11,15,24,.9);
+  box-shadow:0 20px 70px rgba(0,0,0,.3)
+}
+.input-wrap{flex:1;display:flex;align-items:center;padding:0 14px}
+.input-icon{font-family:"JetBrains Mono";color:#6f7b8e;font-size:18px;margin-right:9px}
+.input-wrap input{
+  width:100%;border:0;outline:0;background:transparent;color:var(--text);
+  font-size:15px;font-family:Inter
+}
+.input-wrap input::placeholder{color:#596477}
+.search-box button{
+  border:0;border-radius:13px;padding:15px 20px;background:linear-gradient(135deg,#7659ff,#4f8cff);
+  color:white;font-weight:800;cursor:pointer;display:flex;gap:15px;align-items:center;
+  transition:.2s transform,.2s filter
+}
+.search-box button:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.arrow{font-size:18px}
+.examples{display:flex;justify-content:center;gap:8px;align-items:center;margin-top:14px;color:#667185;font-size:12px}
+.examples button{background:transparent;color:#9da7b8;border:0;cursor:pointer;font-family:"JetBrains Mono";font-size:11px}
+.examples button:hover{color:white}
+.hidden{display:none!important}
+.state-card{
+  max-width:760px;margin:0 auto 35px;padding:20px;border:1px solid var(--line);
+  border-radius:18px;background:var(--panel);display:flex;gap:15px;align-items:center
+}
+.state-card p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.error{border-color:rgba(255,107,129,.25)}
+.error-icon{width:34px;height:34px;border-radius:50%;background:rgba(255,107,129,.13);color:var(--danger);display:grid;place-items:center;font-weight:800}
+.spinner{width:24px;height:24px;border:3px solid rgba(255,255,255,.12);border-top-color:#8b72ff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.profile-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.profile{display:flex;align-items:center;gap:13px}
+.profile img{width:52px;height:52px;border-radius:15px;object-fit:cover;border:1px solid var(--line);background:#151b27}
+.profile-handle{font-size:20px;font-weight:800}
+.profile-meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;margin-top:4px}
+.profile-meta #actualRating{color:#d8dce6}
+#country{margin-left:4px}
+.period-pill{font:700 10px "JetBrains Mono";color:#a49bff;border:1px solid rgba(124,92,255,.28);background:rgba(124,92,255,.08);padding:8px 11px;border-radius:999px}
+.momentum-card{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:34px;border:1px solid rgba(124,92,255,.24);border-radius:26px;
+  background:linear-gradient(120deg,rgba(29,26,55,.9),rgba(13,20,31,.9));
+  overflow:hidden;position:relative
+}
+.momentum-card:after{content:"";position:absolute;width:330px;height:330px;border-radius:50%;right:-100px;top:-150px;background:rgba(91,91,255,.14);filter:blur(5px)}
+.momentum-rank{font-size:clamp(42px,7vw,78px);font-weight:900;letter-spacing:-.06em;margin:8px 0 0}
+.momentum-score{font-family:"JetBrains Mono";font-size:12px;color:#a8b0bf}
+.momentum-main p{max-width:650px;color:#aeb7c7;line-height:1.6;margin:15px 0 0;font-size:13px}
+.momentum-gauge{position:relative;z-index:1;padding-right:18px}
+.gauge-ring{
+  width:150px;height:150px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(#8c72ff 0deg,#4cdcff 0deg,rgba(255,255,255,.08) 0deg);
+  transition:background 1s ease
+}
+.gauge-inner{width:118px;height:118px;border-radius:50%;background:#101522;display:grid;place-items:center;align-content:center}
+.gauge-inner span{font-size:30px;font-weight:900}
+.gauge-inner small{font:700 8px "JetBrains Mono";letter-spacing:.12em;color:#687487}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+.stat-card,.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:20px
+}
+.stat-card{padding:20px}
+.stat-icon{font-size:15px;color:#9d8dff;margin-bottom:16px}
+.stat-title{font-size:12px;color:#818c9f}
+.stat-value{font:800 30px "JetBrains Mono";letter-spacing:-.04em;margin-top:7px}
+.stat-value span{font-size:14px;color:#677387}
+.stat-sub{font-size:11px;color:#5f6b7d;margin-top:7px}
+.two-col{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;margin-top:12px}
+.panel{padding:24px}
+.panel-head{display:flex;justify-content:space-between;margin-bottom:25px}
+.panel h2{font-size:17px;margin:7px 0 0;letter-spacing:-.02em}
+.bars{display:grid;gap:18px}
+.bar-row{display:grid;grid-template-columns:125px 1fr 55px;align-items:center;gap:12px;font-size:12px}
+.bar-row span:first-child{color:#8c97a8}
+.bar-track{height:7px;border-radius:10px;background:#1b2230;overflow:hidden}
+.bar-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#6f5aff,#43d9ff);width:0;transition:width 1s ease}
+.bar-value{text-align:right;font-family:"JetBrains Mono";font-size:11px;color:#d4d8e1}
+.rating-line{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.rating-line>div{padding:15px;border:1px solid var(--line);border-radius:14px}
+.rating-line span{display:block;color:#737e90;font-size:11px;margin-bottom:7px}
+.rating-line strong{font:700 22px "JetBrains Mono"}
+.contest-list{display:grid;gap:8px}
+.contest-item{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#0d121c;border-radius:12px;border:1px solid rgba(255,255,255,.05)}
+.contest-name{font-size:11px;color:#b4bdcb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:75%}
+.contest-delta{font:700 11px "JetBrains Mono"}
+.delta-up{color:var(--good)}.delta-down{color:var(--danger)}.delta-flat{color:var(--muted)}
+.methodology{margin-top:12px}
+.methodology>p{color:#8994a6;font-size:13px;line-height:1.7;max-width:850px}
+.formula{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.formula span,.formula strong{font-size:11px;padding:8px 10px;border-radius:8px;background:#111824;border:1px solid var(--line)}
+.formula b{color:#6f7b8f;font-family:"JetBrains Mono"}
+.formula strong{color:#b5a9ff;border-color:rgba(124,92,255,.25)}
+.notice{margin-top:20px;padding:13px;border-left:2px solid #6e5cff;color:#737f92;background:rgba(124,92,255,.045);font-size:11px;line-height:1.6}
+footer{max-width:1180px;margin:0 auto;padding:25px 24px 45px;display:flex;justify-content:space-between;color:#596477;font-size:11px;border-top:1px solid var(--line)}
+@media(max-width:800px){
+  main{padding-top:55px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .momentum-card{padding:25px}
+  .momentum-gauge{display:none}
+}
+@media(max-width:560px){
+  .topbar-right>span:not(.version-badge){display:none}
+  .search-box{flex-direction:column}
+  .search-box button{justify-content:center}
+  .hero h1{font-size:42px}
+  .stats-grid{grid-template-columns:1fr}
+  .profile-row{align-items:flex-start;gap:10px}
+  .period-pill{margin-top:5px}
+  .bar-row{grid-template-columns:95px 1fr 40px}
+  footer{flex-direction:column;gap:7px}
+}
+
+
+/* Codeforces rank palette */
+.cf-newbie{color:#b0b0b0!important}
+.cf-pupil{color:#7bc8ff!important}
+.cf-specialist{color:#55e6a5!important}
+.cf-expert{color:#8aa7ff!important}
+.cf-candidate-master{color:#c77dff!important}
+.cf-master{color:#ff62d2!important}
+.cf-international-master{color:#ff626f!important}
+.cf-grandmaster,.cf-international-grandmaster{color:#ff4d4d!important}
+.cf-legendary-grandmaster{color:#ffcc4d!important;text-shadow:0 0 16px rgba(255,204,77,.25)}
+
+.momentum-metrics{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.momentum-rating-box{
+  min-width:190px;padding:14px 18px;border:1px solid rgba(124,92,255,.28);
+  border-radius:15px;background:rgba(124,92,255,.07)
+}
+.momentum-rating-box span{
+  display:block;color:#7e899b;font:700 9px "JetBrains Mono";
+  letter-spacing:.12em;text-transform:uppercase
+}
+.momentum-rating-box strong{
+  display:block;font:900 32px "JetBrains Mono";letter-spacing:-.05em;margin:5px 0 2px
+}
+.momentum-rating-box small{color:#626e80;font-size:9px}
+@media(max-width:650px){
+  .momentum-metrics{gap:15px}
+  .momentum-rating-box{min-width:160px}
+}
+
+/* --- Premium responsive refresh --- */
+:root{
+  --accent:#8b6cff;
+  --accent-2:#55e6ff;
+  --glass:rgba(13,18,29,.72);
+}
+body{
+  background:
+    radial-gradient(900px 500px at 50% -8%,rgba(101,77,255,.20),transparent 65%),
+    radial-gradient(700px 500px at 100% 45%,rgba(38,203,255,.08),transparent 60%),
+    #070a10;
+}
+main{max-width:1240px;padding-left:18px;padding-right:18px}
+.hero{max-width:900px}
+.hero h1{font-weight:800;text-shadow:0 18px 70px rgba(0,0,0,.45)}
+.search-box{
+  border-color:rgba(255,255,255,.12);
+  background:rgba(8,12,20,.78);
+  box-shadow:0 24px 90px rgba(0,0,0,.4),0 0 45px rgba(109,83,255,.07);
+}
+.search-box button{
+  box-shadow:0 8px 28px rgba(91,75,255,.25);
+}
+.stat-card,.panel,.state-card{
+  background:linear-gradient(145deg,rgba(18,24,37,.80),rgba(10,14,23,.82));
+  backdrop-filter:blur(18px);
+  box-shadow:0 16px 50px rgba(0,0,0,.15);
+}
+.stat-card{transition:transform .2s,border-color .2s}
+.stat-card:hover{transform:translateY(-3px);border-color:rgba(139,108,255,.25)}
+.momentum-card{
+  min-height:245px;
+  background:
+    radial-gradient(500px 250px at 15% 50%,rgba(124,92,255,.14),transparent 70%),
+    linear-gradient(120deg,rgba(25,22,51,.94),rgba(10,17,28,.94));
+  box-shadow:0 30px 100px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.momentum-rank{line-height:.98}
+.momentum-rating-box{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 30px rgba(0,0,0,.15);
+}
+.formula span,.formula strong{backdrop-filter:blur(10px)}
+@media(max-width:700px){
+  .topbar{height:62px;padding:0 15px}
+  .brand{font-size:12px}
+  .brand-mark{width:29px;height:29px}
+  main{padding:48px 13px 40px}
+  .hero{margin-bottom:38px}
+  .eyebrow{font-size:9px}
+  .hero h1{font-size:clamp(36px,11vw,52px);letter-spacing:-.065em}
+  .hero-copy{font-size:14px;line-height:1.65}
+  .search-box{padding:6px;border-radius:16px}
+  .input-wrap{min-height:48px}
+  .search-box button{min-height:48px;padding:13px}
+  .examples{flex-wrap:wrap}
+  .profile-row{margin-bottom:12px}
+  .profile-handle{font-size:17px}
+  .profile img{width:45px;height:45px;border-radius:13px}
+  .profile-meta{font-size:10px;flex-wrap:wrap}
+  .period-pill{font-size:8px;padding:7px 9px}
+  .momentum-card{padding:22px 18px;min-height:0;border-radius:20px}
+  .momentum-metrics{display:grid;grid-template-columns:1fr auto;gap:13px;width:100%}
+  .momentum-rank{font-size:clamp(34px,9vw,52px)}
+  .momentum-score{font-size:9px}
+  .momentum-rating-box{min-width:0;padding:11px 12px}
+  .momentum-rating-box strong{font-size:24px}
+  .momentum-rating-box small{font-size:8px}
+  .momentum-main p{font-size:11px;margin-top:14px}
+  .stats-grid{gap:8px;margin-top:8px}
+  .stat-card{padding:15px}
+  .stat-icon{margin-bottom:10px}
+  .stat-value{font-size:24px}
+  .two-col{gap:8px;margin-top:8px}
+  .panel{padding:17px;border-radius:17px}
+  .panel h2{font-size:15px}
+  .bar-row{grid-template-columns:88px 1fr 36px;gap:8px;font-size:10px}
+  .rating-line strong{font-size:18px}
+  .formula{gap:6px}
+  .formula span,.formula strong{font-size:9px;padding:6px 7px}
+  footer{padding:22px 13px 35px}
+}
+@media(max-width:390px){
+  .momentum-metrics{grid-template-columns:1fr}
+  .momentum-rating-box{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .momentum-rating-box span{width:100%}
+  .momentum-rating-box strong{margin:0}
+  .momentum-rating-box small{margin-left:auto}
+}
+
+/* ===== V4: Aurora / Pearl themes ===== */
+:root{
+  --bg:#07080d;--panel:rgba(17,16,25,.76);--panel-2:#10101a;--line:rgba(255,255,255,.10);
+  --text:#f7f4ff;--muted:#9b97aa;--accent:#ff4fd8;--accent-2:#8b5cff;--good:#6dffb8;--warning:#ffc857;--danger:#ff6687;
+}
+body{background:radial-gradient(800px 520px at 12% -5%,rgba(255,79,216,.16),transparent 62%),radial-gradient(760px 500px at 92% 25%,rgba(139,92,255,.15),transparent 62%),#07080d}
+body:before{opacity:.18;background-size:56px 56px}
+.ambient-a{background:#ff3fc8}.ambient-b{background:#713cff}
+.brand-mark{background:linear-gradient(135deg,#ff4fd8,#7b5cff);box-shadow:0 0 30px rgba(255,79,216,.25)}
+.live-dot{background:#6dffb8;box-shadow:0 0 12px #6dffb8}
+.eyebrow,.section-label{color:#ff77df}
+.hero h1 span{background:linear-gradient(90deg,#fff,#ff79dd 45%,#9d7cff);-webkit-background-clip:text;background-clip:text}
+.search-box button{background:linear-gradient(135deg,#ff4fcf,#765bff);box-shadow:0 12px 35px rgba(255,79,216,.18)}
+.period-pill{color:#ff83df;border-color:rgba(255,79,216,.28);background:rgba(255,79,216,.07)}
+.momentum-card{background:radial-gradient(550px 300px at 8% 50%,rgba(255,79,216,.13),transparent 68%),linear-gradient(120deg,rgba(35,18,40,.94),rgba(15,15,25,.96));border-color:rgba(255,79,216,.24)}
+.momentum-card:after{background:rgba(255,79,216,.12)}
+.bar-fill{background:linear-gradient(90deg,#ff4fd8,#845cff)}
+.formula strong{color:#ff8de4;border-color:rgba(255,79,216,.25)}
+.notice{border-left-color:#ff4fd8;background:rgba(255,79,216,.045)}
+.theme-toggle{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);border-radius:999px;padding:6px 9px;cursor:pointer;font:700 10px "JetBrains Mono"}
+.theme-toggle:hover{color:var(--text);border-color:rgba(255,79,216,.35)}
+.analysis-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-top:12px}
+.chart-wrap{height:255px;position:relative}
+.chart-wrap canvas{width:100%;height:100%}
+.forecast-number{font:900 38px "JetBrains Mono";letter-spacing:-.06em;margin:4px 0}
+.forecast-range{color:var(--muted);font:600 11px "JetBrains Mono"}
+.forecast-note{font-size:11px;color:#777285;line-height:1.65;margin-top:12px}
+.upcoming-list{display:grid;gap:8px;margin-top:14px}
+.upcoming-item{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.025)}
+.upcoming-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upcoming-time{font:600 9px "JetBrains Mono";color:#8f8a9b;white-space:nowrap}
+.light-theme{--bg:#f5f3fa;--panel:rgba(255,255,255,.78);--panel-2:#fff;--line:rgba(37,28,55,.10);--text:#17131f;--muted:#6f687b;--accent:#d52bb1;--accent-2:#6847dc;--good:#159a63;--warning:#b87900;--danger:#d83c62}
+body.light-theme{background:radial-gradient(800px 500px at 8% -8%,rgba(255,79,216,.13),transparent 60%),radial-gradient(700px 500px at 95% 20%,rgba(104,71,220,.12),transparent 60%),#f5f3fa;color:var(--text)}
+.light-theme .topbar{background:rgba(245,243,250,.78)}
+.light-theme .search-box{background:rgba(255,255,255,.86);box-shadow:0 20px 60px rgba(57,40,75,.10)}
+.light-theme .stat-card,.light-theme .panel,.light-theme .state-card{background:rgba(255,255,255,.80);box-shadow:0 12px 40px rgba(57,40,75,.07)}
+.light-theme .momentum-card{background:linear-gradient(120deg,rgba(255,240,251,.96),rgba(241,238,255,.96))}
+.light-theme .gauge-inner{background:#fff}
+.light-theme .contest-item,.light-theme .rating-line>div,.light-theme .formula span,.light-theme .formula strong{background:rgba(104,71,220,.035)}
+.light-theme .bar-track{background:#e9e4f0}
+.light-theme .hero h1 span{background:linear-gradient(90deg,#201827,#d52bb1 45%,#6847dc);-webkit-background-clip:text;background-clip:text}
+.light-theme .hero h1,.light-theme .profile-handle,.light-theme .panel h2{color:#17131f}
+.light-theme .hero-copy,.light-theme .momentum-main p,.light-theme .methodology>p{color:#6f687b}
+@media(max-width:800px){.analysis-grid{grid-template-columns:1fr}.chart-wrap{height:220px}.topbar{padding-left:15px;padding-right:15px}.theme-toggle span{display:none}}
+
+.profile-link{color:inherit;text-decoration:none;cursor:pointer}
+.profile-link:hover{text-decoration:underline;text-underline-offset:4px}
+.analysis-section{margin-top:26px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;margin:0 2px 12px}
+.section-heading h2{margin:5px 0 0;font-size:22px;letter-spacing:-.035em}
+.analysis-note,.mini-label{font:700 9px "JetBrains Mono";letter-spacing:.12em;text-transform:uppercase;color:#768195}
+.analysis-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:12px}
+.analysis-panel,.forecast-summary{
+  border:1px solid rgba(255,255,255,.08);border-radius:20px;
+  padding:19px;background:linear-gradient(145deg,rgba(18,24,37,.78),rgba(9,13,21,.82));
+  box-shadow:0 18px 55px rgba(0,0,0,.16);backdrop-filter:blur(16px)
+}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.panel-head strong{display:block;font-size:18px;margin-top:4px}
+.chart-legend{font:600 9px "JetBrains Mono";color:#9ba6b8}.chart-legend i{
+  display:inline-block;width:7px;height:7px;border-radius:50%;background:#9d7cff;margin-right:5px
+}
+.chart-wrap{position:relative;height:230px}
+#ratingChart{width:100%;height:230px;display:block}
+.contest-forecasts{display:grid;gap:8px;max-height:286px;overflow:auto;padding-right:2px}
+.contest-row{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:12px;border-radius:13px;background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.055)
+}
+.contest-name{font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.contest-date{font:8px "JetBrains Mono";color:#687487;margin-top:4px}
+.contest-delta{font:800 16px "JetBrains Mono"}
+.contest-delta small{display:block;text-align:right;font:7px "JetBrains Mono";color:#687487;margin-top:2px}
+.delta-up{color:#55e6a5}.delta-down{color:#ff6f8d}.delta-flat{color:#aab3c2}
+.forecast-summary{margin-top:12px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.forecast-summary strong{display:block;font:900 28px "JetBrains Mono";margin-top:5px}
+.forecast-summary p{margin:5px 0 0;color:#788396;font-size:10px}
+.forecast-range{font:800 15px "JetBrains Mono";padding:13px 15px;border:1px solid rgba(157,124,255,.22);border-radius:13px;background:rgba(157,124,255,.06)}
+.data-loading{position:relative;overflow:hidden}
+.data-loading:after{
+  content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);
+  animation:shimmer 1.15s infinite
+}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.result-reveal{animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both}
+@media(max-width:760px){
+  .analysis-grid{grid-template-columns:1fr}
+  .analysis-panel{padding:15px;border-radius:17px}
+  .section-heading h2{font-size:19px}
+  .forecast-summary{align-items:flex-start;flex-direction:column}
+  .forecast-range{width:100%;box-sizing:border-box}
+}
+
+#performanceAnalysis.result-reveal{
+  animation:fadeUp .55s cubic-bezier(.2,.8,.2,1) both;
+}
+
+
+/* ===== V9: Light theme, versioning, creator credit & loading system ===== */
+.version-badge,.footer-version{
+  font:700 9px "JetBrains Mono";letter-spacing:.08em;color:#8792a5;
+  border:1px solid var(--line);padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.035)
+}
+.version-badge b,.footer-version b{color:var(--text)}
+.theme-toggle{white-space:nowrap}
+.boot-loader{
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;align-content:center;
+  gap:13px;background:#07080d;color:#f7f4ff;transition:opacity .55s ease,visibility .55s ease
+}
+.boot-loader.ready{opacity:0;visibility:hidden;pointer-events:none}
+.boot-orb{
+  width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:25px;
+  background:linear-gradient(135deg,#ff4fd8,#7b5cff);box-shadow:0 0 45px rgba(255,79,216,.3);
+  animation:bootPulse 1.1s ease-in-out infinite alternate
+}
+.boot-title{font-size:18px;font-weight:700;letter-spacing:-.02em}
+.boot-title b{font-weight:900}
+.boot-meta{font:700 8px "JetBrains Mono";letter-spacing:.12em;color:#747d8d}
+.boot-bar{width:min(270px,70vw);height:3px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.boot-bar span{display:block;width:35%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff4fd8,#7b5cff,#35d7ff);animation:bootProgress 1.25s ease-in-out infinite}
+@keyframes bootProgress{0%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+@keyframes bootPulse{from{transform:scale(.94);box-shadow:0 0 25px rgba(255,79,216,.18)}to{transform:scale(1.04);box-shadow:0 0 55px rgba(255,79,216,.35)}}
+.site-main-loading{opacity:0;transform:translateY(8px);transition:opacity .7s ease,transform .7s ease}
+.site-main-loading.ready{opacity:1;transform:none}
+.data-loader{box-shadow:0 18px 60px rgba(0,0,0,.2);animation:dataAppear .35s ease both}
+.loader-visual{display:grid;justify-items:center;gap:5px;min-width:58px}
+.loader-visual>span{font:700 7px "JetBrains Mono";color:#7c8799;letter-spacing:.08em}
+.loader-copy{flex:1}
+.loading-progress{height:4px;border-radius:99px;background:rgba(255,255,255,.07);margin-top:11px;overflow:hidden}
+.loading-progress span{display:block;height:100%;width:8%;border-radius:inherit;background:linear-gradient(90deg,#ff4fd8,#7b5cff);transition:width .5s ease}
+.footer-brand,.footer-meta{display:flex;align-items:center;gap:12px}
+.footer-brand{flex-direction:column;align-items:flex-start;gap:4px}
+.footer-title{font-weight:800;color:var(--text);font-size:12px}
+.footer-credit{font-size:11px;color:#747e90}
+.footer-credit strong{color:#c9c1ff;font-weight:800}
+.footer-meta{font-size:10px;color:#596477}
+@keyframes dataAppear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.light-theme .boot-loader{background:#f5f3fa;color:#17131f}
+.light-theme .boot-meta{color:#7a7184}
+.light-theme .boot-bar{background:rgba(37,28,55,.1)}
+.light-theme .loading-progress{background:#e9e4f0}
+.light-theme .state-card{box-shadow:0 15px 45px rgba(57,40,75,.08)}
+.light-theme .footer-credit strong{color:#6847dc}
+.light-theme .version-badge{background:rgba(104,71,220,.04)}
+@media(max-width:800px){
+  .version-badge{display:none}
+  .footer-brand,.footer-meta{align-items:center}
+  footer{text-align:center}
+}
+
+
+/* Profile and author links */
+.profile-handle{color:var(--text);text-decoration:none;display:inline-block;cursor:pointer;transition:opacity .2s ease,transform .2s ease}
+.profile-handle:hover{opacity:.82;text-decoration:underline;text-underline-offset:4px;transform:translateY(-1px)}
+.footer-author-link{color:inherit;text-decoration:none}
+.footer-author-link strong{cursor:pointer}
+.footer-author-link:hover strong{text-decoration:underline;text-underline-offset:3px}
+.heart-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:14px;line-height:1;transition:transform .2s ease,filter .2s ease}
+.heart-link:hover{transform:scale(1.18);filter:drop-shadow(0 0 6px rgba(255,90,120,.45))}
+
+  </style>
 
 <style id="profile-link-style">
 .handle-profile-link,.footer-author-link{color:inherit;text-decoration:none;cursor:pointer}
@@ -271,6 +728,674 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script id="github-pages-embedded-script">
+const API = "https://codeforces.com/api/";
+const DAYS = 30;
+const MAX_SUBMISSIONS = 1000;
+const SITE_VERSION = "v9.0.0";
+
+const $ = (id) => document.getElementById(id);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+let lastApiCall = 0;
+
+function makeCodeforcesHandleLink(el, handle) {
+  if (!el || !handle) return;
+  const a = document.createElement("a");
+  a.className = "handle-profile-link";
+  a.href = "https://codeforces.com/profile/" + encodeURIComponent(handle);
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  a.textContent = handle;
+  el.replaceChildren(a);
+}
+
+async function cf(method, params = {}) {
+  const now = Date.now();
+  const wait = Math.max(0, 2100 - (now - lastApiCall));
+  if (wait) await sleep(wait);
+  const url = new URL(API + method);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  lastApiCall = Date.now();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.status !== "OK") throw new Error(data.comment || "Codeforces API error");
+  return data.result;
+}
+
+function rankName(rating) {
+  if (rating < 1200) return "Newbie";
+  if (rating < 1400) return "Pupil";
+  if (rating < 1600) return "Specialist";
+  if (rating < 1900) return "Expert";
+  if (rating < 2100) return "Candidate Master";
+  if (rating < 2300) return "Master";
+  if (rating < 2400) return "International Master";
+  if (rating < 2600) return "Grandmaster";
+  if (rating < 3000) return "International Grandmaster";
+  return "Legendary Grandmaster";
+}
+
+function momentumRank(score) {
+  // Generous calibration: strong recent form can move well above official rank.
+  if (score < 16) return "Newbie";
+  if (score < 29) return "Pupil";
+  if (score < 43) return "Specialist";
+  if (score < 57) return "Expert";
+  if (score < 69) return "Candidate Master";
+  if (score < 79) return "Master";
+  if (score < 87) return "International Master";
+  if (score < 94) return "Grandmaster";
+  if (score < 98) return "International Grandmaster";
+  return "Legendary Grandmaster";
+}
+
+function momentumBounds(rank) {
+  const bounds = {
+    "Newbie":[800,1199],
+    "Pupil":[1200,1399],
+    "Specialist":[1400,1599],
+    "Expert":[1600,1899],
+    "Candidate Master":[1900,2099],
+    "Master":[2100,2299],
+    "International Master":[2300,2399],
+    "Grandmaster":[2400,2599],
+    "International Grandmaster":[2600,2999],
+    "Legendary Grandmaster":[3000,3500]
+  };
+  return bounds[rank] || [800,3500];
+}
+
+function momentumRatingFromScore(score) {
+  const rank = momentumRank(score);
+  const [lo, hi] = momentumBounds(rank);
+  const thresholds = [0,16,29,43,57,69,79,87,94,98,100];
+  const idx = ["Newbie","Pupil","Specialist","Expert","Candidate Master","Master","International Master","Grandmaster","International Grandmaster","Legendary Grandmaster"].indexOf(rank);
+  const a = thresholds[idx], b = thresholds[idx+1];
+  const t = Math.max(0, Math.min(1, (score-a)/(b-a || 1)));
+  return Math.round(lo + (hi-lo)*t);
+}
+
+function rankFromRating(rating) {
+  if (rating < 1200) return "Newbie";
+  if (rating < 1400) return "Pupil";
+  if (rating < 1600) return "Specialist";
+  if (rating < 1900) return "Expert";
+  if (rating < 2100) return "Candidate Master";
+  if (rating < 2300) return "Master";
+  if (rating < 2400) return "International Master";
+  if (rating < 2600) return "Grandmaster";
+  if (rating < 3000) return "International Grandmaster";
+  return "Legendary Grandmaster";
+}
+
+function ratingColor(rank) {
+  const map = {
+    "Newbie":"#b0b0b0",
+    "Pupil":"#7bc8ff",
+    "Specialist":"#55e6a5",
+    "Expert":"#8aa7ff",
+    "Candidate Master":"#c77dff",
+    "Master":"#ff62d2",
+    "International Master":"#ff626f",
+    "Grandmaster":"#ff4d4d",
+    "International Grandmaster":"#ff4d4d",
+    "Legendary Grandmaster":"#ffcc4d"
+  };
+  return map[rank] || "#fff";
+}
+
+function momentumRatingColor(rating) {
+  return ratingColor(rankFromRating(rating));
+}
+
+function formatNumber(n) {
+  return Number(n || 0).toLocaleString();
+}
+
+function daysAgo(sec) {
+  return Date.now()/1000 - sec <= DAYS * 86400;
+}
+
+function percentileScore(value, low, high) {
+  return Math.max(0, Math.min(1, (value-low)/(high-low)));
+}
+
+function calculateMomentum(profile, submissions, ratings) {
+  const recentSubs = submissions.filter(s => daysAgo(s.creationTimeSeconds));
+  const accepted = recentSubs.filter(s => s.verdict === "OK");
+
+  const uniqueAccepted = new Map();
+  for (const s of accepted) {
+    const p = s.problem;
+    const key = `${p.contestId ?? "gym"}:${p.index ?? p.name}`;
+    if (!uniqueAccepted.has(key)) uniqueAccepted.set(key, p);
+  }
+
+  const problems = [...uniqueAccepted.values()];
+  const ratedProblems = problems.filter(p => Number.isFinite(p.rating));
+  const avgProblemRating = ratedProblems.length
+    ? ratedProblems.reduce((a,p) => a + p.rating, 0) / ratedProblems.length : 0;
+  const maxProblemRating = ratedProblems.length
+    ? Math.max(...ratedProblems.map(p => p.rating)) : 0;
+
+  const activeDays = new Set(
+    recentSubs.map(s => new Date(s.creationTimeSeconds * 1000).toISOString().slice(0,10))
+  ).size;
+
+  const recentRatings = ratings.filter(r => daysAgo(r.ratingUpdateTimeSeconds));
+  const contestCount = recentRatings.length;
+  const avgContestRating = contestCount
+    ? recentRatings.reduce((a,r) => a + r.newRating, 0) / contestCount : profile.rating || 0;
+  const contestPeak = contestCount
+    ? Math.max(...recentRatings.map(r => r.newRating)) : profile.rating || 0;
+
+  const acceptedScore = percentileScore(problems.length, 1, 28);
+  const difficultyScore = percentileScore(avgProblemRating, 1050, 1950);
+  const highestSolvedScore = percentileScore(maxProblemRating, 1300, 2800);
+  const activityScore = percentileScore(activeDays, 1, 20);
+  const contestScore = percentileScore(avgContestRating, 1100, 2700);
+  const contributionScore = percentileScore(Math.max(0, profile.contribution || 0), 0, 80);
+
+  // Momentum v8: problem difficulty and the hardest solved problem are stronger.
+  // The six weights below sum to exactly 100.
+  const raw =
+    acceptedScore * 24 +
+    difficultyScore * 32 +
+    highestSolvedScore * 12 +
+    contestScore * 18 +
+    activityScore * 9 +
+    contributionScore * 5;
+
+  const score = Math.round(Math.max(0, Math.min(100, raw)));
+  const rank = momentumRank(score);
+
+  const base = profile.rating || 0;
+  const difficultyPerformance = ratedProblems.length
+    ? avgProblemRating + Math.max(0, maxProblemRating - avgProblemRating) * 0.22
+    : base;
+
+  let momentumRating =
+    base * 0.30 +
+    difficultyPerformance * 0.34 +
+    (contestCount ? avgContestRating : base) * 0.20 +
+    (contestCount ? contestPeak : base) * 0.10 +
+    (ratedProblems.length ? maxProblemRating : base) * 0.06;
+
+  momentumRating +=
+    Math.max(0, activeDays - 4) * 2.5 +
+    Math.max(0, problems.length - 5) * 1.4 +
+    Math.max(0, avgProblemRating - base) * 0.10;
+
+  const bounds = momentumBounds(rank);
+  momentumRating = Math.max(bounds[0], Math.min(bounds[1], Math.round(momentumRating)));
+  if (!contestCount && !ratedProblems.length) momentumRating = Math.round((bounds[0] + bounds[1]) / 2);
+
+  return {
+    recentSubs, accepted, problems, ratedProblems, avgProblemRating,
+    maxProblemRating, activeDays, contestCount, recentRatings,
+    avgContestRating, contestPeak, score, rank, momentumRating,
+    currentRating: profile.rating || 0,
+    allRatings: ratings,
+    components: {
+      "Accepted volume": Math.round(acceptedScore * 100),
+      "Problem difficulty": Math.round(difficultyScore * 100),
+      "Highest solved": Math.round(highestSolvedScore * 100),
+      "Contest form": Math.round(contestScore * 100),
+      "Consistency": Math.round(activityScore * 100),
+      "Contribution": Math.round(contributionScore * 100)
+    }
+  };
+}
+
+
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function contestBucket(contest) {
+  const name=String(contest.name||"").toLowerCase();
+  if(contest.type==="EDU"||name.includes("educational")) return "EDU";
+  if(contest.type==="ICPC"||/\bicpc\b|nwerc|neerc|regional|world finals|\bwf\b/.test(name)) return "ICPC";
+  const hasDiv1=/\bdiv\.?\s*1\b|\bdivision\s*1\b|\bdiv1\b/.test(name);
+  const hasDiv2=/\bdiv\.?\s*2\b|\bdivision\s*2\b|\bdiv2\b/.test(name);
+  if(hasDiv1 && hasDiv2) return "DIV1_2";
+  if(hasDiv1) return "DIV1";
+  if(hasDiv2) return "DIV2";
+  if(/\bdiv\.?\s*3\b|\bdivision\s*3\b|\bdiv3\b/.test(name)) return "DIV3";
+  if(/\bdiv\.?\s*4\b|\bdivision\s*4\b|\bdiv4\b/.test(name)) return "DIV4";
+  return "OTHER";
+}
+
+function isRatedContest(contest) {
+  const name=String(contest.name||"").toLowerCase();
+  if(contest.type==="IOI"||contest.type==="ICPC") return false;
+  if(/unrated|practice|virtual|testing|icpc|nwerc|neerc|regional|world finals/.test(name)) return false;
+  if(contest.phase!=="BEFORE"&&contest.phase!=="FINISHED") return false;
+  return contest.type==="EDU" || contest.type==="CF" || contestBucket(contest)!=="OTHER";
+}
+
+// Codeforces division rating eligibility for the user's current rating.
+// Div. 3: rated only below 1600.
+// Div. 2 / Educational: rated only below 2100.
+// Div. 1: rated from 1900 upward.
+// Parallel Div. 1 + Div. 2 rounds are rated for both ranges.
+function isRatedForUser(contest, userRating) {
+  if(!isRatedContest(contest)) return false;
+  const bucket=contestBucket(contest);
+  const rating=Number(userRating);
+  if(!Number.isFinite(rating)) return false;
+  if(bucket==="DIV1_2") return true;
+  if(bucket==="DIV1") return rating >= 1900;
+  if(bucket==="DIV2" || bucket==="EDU") return rating < 2100;
+  if(bucket==="DIV3") return rating < 1600;
+  if(bucket==="DIV4") return rating < 1400;
+  return true;
+}
+
+function recentRatingForm(ratings) {
+  const recent = ratings.slice(-6);
+  if (!recent.length) return {avgDelta: 0, trend: 0, sample: 0};
+
+  let weightedSum = 0, weightSum = 0;
+  recent.forEach((r, i) => {
+    const weight = i + 1;
+    weightedSum += (r.newRating - r.oldRating) * weight;
+    weightSum += weight;
+  });
+
+  const avgDelta = weightedSum / weightSum;
+
+  const last3 = recent.slice(-3).map(r => r.newRating - r.oldRating);
+  const prev3 = recent.slice(-6, -3).map(r => r.newRating - r.oldRating);
+  const avgLast = last3.length
+    ? last3.reduce((a,b) => a+b, 0) / last3.length : avgDelta;
+  const avgPrev = prev3.length
+    ? prev3.reduce((a,b) => a+b, 0) / prev3.length : avgLast;
+
+  return {
+    avgDelta,
+    trend: avgLast - avgPrev,
+    sample: recent.length
+  };
+}
+
+
+function typePerformance(result,bucket) {
+  const typed=(result.allRatings||[])
+    .filter(r=>contestBucket(r.contestMeta||{})===bucket).slice(-6);
+  if(!typed.length) return {delta:0,sample:0,confidence:0};
+  let sum=0,weights=0;
+  typed.forEach((r,i)=>{const w=i+1;sum+=(r.newRating-r.oldRating)*w;weights+=w;});
+  return {delta:sum/weights,sample:typed.length,confidence:Math.min(1,typed.length/5)};
+}
+function expectedContestDelta(result,contest) {
+  if(!isRatedContest(contest)) return null;
+  const overall=recentRatingForm(result.recentRatings);
+  const bucket=contestBucket(contest);
+  const typed=typePerformance(result,bucket);
+  const tw=typed.confidence*0.58;
+  let delta=typed.delta*tw+overall.avgDelta*(1-tw);
+  delta+=Math.max(-15,Math.min(15,overall.trend))*0.08;
+  const formatAdjustment={DIV1:3,DIV1_2:2,DIV2:1,DIV3:-1,DIV4:-2,EDU:0,OTHER:0}[bucket]||0;
+  delta+=formatAdjustment*0.35;
+  delta=Math.round(Math.max(-90,Math.min(90,delta)));
+  const uncertainty=Math.round(Math.max(9,Math.min(24,
+    11+(1-typed.confidence)*7+
+    (bucket==="DIV1"?2:(bucket==="EDU"||bucket==="DIV3"||bucket==="DIV4"?1:0))
+  )));
+  return {delta,uncertainty,bucket,typeSample:typed.sample};
+}
+function drawRatingChart(history) {
+  const canvas = $("ratingChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(320, rect.width);
+  const height = 230;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!history.length) {
+    ctx.fillStyle = "#7b8799";
+    ctx.font = "11px JetBrains Mono";
+    ctx.fillText("No rated contests in the last 30 days.", 14, 28);
+    return;
+  }
+
+  const points = [
+    {
+      newRating: history[0].oldRating,
+      ratingUpdateTimeSeconds: history[0].ratingUpdateTimeSeconds - 1
+    },
+    ...history
+  ];
+
+  const values = points.map(p => p.newRating);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const padding = Math.max(35, Math.round((maxValue - minValue) * 0.18));
+  const min = minValue - padding;
+  const max = maxValue + padding;
+
+  const left = 14;
+  const right = 12;
+  const top = 18;
+  const bottom = 24;
+
+  const x = i =>
+    left + (width - left - right) *
+    (i / Math.max(1, points.length - 1));
+
+  const y = value =>
+    height - bottom -
+    (height - top - bottom) * ((value - min) / Math.max(1, max - min));
+
+  ctx.strokeStyle = "rgba(255,255,255,.07)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i < 4; i++) {
+    const gy = top + i * (height - top - bottom) / 3;
+    ctx.beginPath();
+    ctx.moveTo(left, gy);
+    ctx.lineTo(width - right, gy);
+    ctx.stroke();
+  }
+
+  // Filled area.
+  const gradient = ctx.createLinearGradient(0, top, 0, height);
+  gradient.addColorStop(0, "rgba(157,124,255,.22)");
+  gradient.addColorStop(1, "rgba(157,124,255,0)");
+
+  ctx.beginPath();
+  ctx.moveTo(x(0), height - bottom);
+  points.forEach((p, i) => ctx.lineTo(x(i), y(p.newRating)));
+  ctx.lineTo(x(points.length - 1), height - bottom);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+
+  // Rating line.
+  ctx.beginPath();
+  points.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(x(i), y(p.newRating));
+    else ctx.lineTo(x(i), y(p.newRating));
+  });
+  ctx.strokeStyle = "#9d7cff";
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Points.
+  points.forEach((p, i) => {
+    ctx.beginPath();
+    ctx.arc(x(i), y(p.newRating), i === points.length - 1 ? 4 : 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#d7c9ff";
+    ctx.fill();
+  });
+
+  ctx.fillStyle = "#778397";
+  ctx.font = "9px JetBrains Mono";
+  ctx.fillText(`${Math.round(max)}`, left, 11);
+  ctx.fillText(`${Math.round(min)}`, left, height - 5);
+
+  $("chartCurrentRating").textContent =
+    `${points[points.length - 1].newRating}`;
+}
+
+
+function renderContestForecasts(result,contests) {
+  const box=$("contestForecasts"); if(!box)return;
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedForUser(c,result.currentRating))
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+  if(!upcoming.length){box.innerHTML='<div class="analysis-empty">No upcoming rated contests found in the next 30 days.</div>';return;}
+  box.innerHTML=upcoming.map(c=>{
+    const f=expectedContestDelta(result,c), cls=f.delta>2?"delta-up":f.delta<-2?"delta-down":"delta-flat";
+    const sign=f.delta>0?"+":"",date=new Date(c.startTimeSeconds*1000).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    return `<div class="contest-row"><div><div class="contest-name">${escapeHtml(c.name)}</div><div class="contest-date">${date} · ${f.bucket.replace("DIV1_2","DIV1 + DIV2")}${f.typeSample?` · ${f.typeSample} prior`:""}</div></div><div class="contest-delta ${cls}">${sign}${f.delta}<small>±${f.uncertainty}</small></div></div>`;
+  }).join("");
+}
+
+function renderRealRatingForecast(result,contests) {
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  const upcoming=contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater&&isRatedForUser(c,result.currentRating))
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+  const current=result.currentRating;
+  if(!upcoming.length){
+    $("ratingForecast").textContent=current;$("forecastRange").textContent=`${current} — ${current}`;
+    $("ratingForecastText").textContent="No upcoming rated contests are currently scheduled in the next 30 days.";return;
+  }
+  const fs=upcoming.map(c=>expectedContestDelta(result,c)).filter(Boolean);
+  const total=fs.reduce((a,f)=>a+f.delta,0);
+  const uncertainty=Math.round(Math.max(15,Math.min(45,Math.sqrt(fs.reduce((a,f)=>a+f.uncertainty*f.uncertainty,0))*0.65)));
+  const forecast=Math.round(current+total);
+  $("ratingForecast").textContent=forecast;$("forecastRange").textContent=`${forecast-uncertainty} — ${forecast+uncertainty}`;
+  const sign=total>0?"+":"";
+  $("ratingForecastText").textContent=`Current ${current} → expected ${sign}${total} rating change across ${fs.length} upcoming rated contest${fs.length===1?"":"s"} in the next 30 days. Unrated contests are excluded.`;
+}
+async function fetchUpcomingContests() {
+  const contests=await cf("contest.list",{gym:"false"});
+  const now=Math.floor(Date.now()/1000), monthLater=now+30*86400;
+  return contests.filter(c=>c.phase==="BEFORE"&&c.startTimeSeconds>=now&&c.startTimeSeconds<=monthLater)
+    .sort((a,b)=>a.startTimeSeconds-b.startTimeSeconds);
+}
+async function enrichRatingHistoryWithContestTypes(ratings) {
+  try {
+    const contests=await cf("contest.list",{gym:"false"});
+    const byId=new Map(contests.map(c=>[c.id,c]));
+    return ratings.map(r=>({...r,contestMeta:byId.get(r.contestId)||{}}));
+  } catch(e) {
+    return ratings.map(r=>({...r,contestMeta:{}}));
+  }
+}
+
+function setLoading(text, step=1) {
+  $("loadingText").textContent = text;
+  const fill=$("loadingProgressFill");
+  const stepEl=$("loadingStep");
+  if(fill) fill.style.width = `${Math.max(8, Math.min(100, step * 25))}%`;
+  if(stepEl) stepEl.textContent = `STEP ${step}/4`;
+}
+
+function showLoading(on) {
+  $("loading").classList.toggle("hidden", !on);
+}
+
+function showError(title, text) {
+  $("errorTitle").textContent = title;
+  $("errorText").textContent = text;
+  $("error").classList.remove("hidden");
+}
+
+function resetError() {
+  $("error").classList.add("hidden");
+}
+
+function render(profile, result) {
+  window.__lastProfile=profile; window.__lastResult=result;
+  $("dashboard").classList.remove("hidden");
+
+  $("avatar").src = profile.titlePhoto || profile.avatar || "";
+  $("profileHandle").textContent = profile.handle;
+  $("profileHandle").href = `https://codeforces.com/profile/${encodeURIComponent(profile.handle)}`;
+  $("actualRank").textContent = profile.rank || rankName(profile.rating || 0);
+  $("actualRank").style.color = ratingColor(profile.rank || rankName(profile.rating || 0));
+  $("actualRating").textContent = `${profile.rating ?? 0} rating`;
+  $("country").textContent = profile.country ? `• ${profile.country}` : "";
+
+  $("momentumRank").textContent = result.rank;
+  $("momentumRank").style.color = ratingColor(result.rank);
+  $("momentumScore").textContent = result.score;
+  $("momentumRating").textContent = result.momentumRating;
+  $("momentumRating").style.color = ratingColor(result.rank);
+  $("gaugeValue").textContent = result.score;
+  const degrees = result.score * 3.6;
+  $("gaugeValue").style.color = ratingColor(result.rank);
+  $("gaugeValue").parentElement.parentElement.style.background =
+    `conic-gradient(${ratingColor(result.rank)} ${degrees}deg, rgba(255,255,255,.08) ${degrees}deg)`;
+
+  const actual = profile.rank || rankName(profile.rating || 0);
+  let relation = "";
+  if (rankName(profile.rating || 0) !== result.rank) {
+    relation = `Your official rank is ${actual}, but your recent activity resembles ${result.rank}-level form.`;
+  } else {
+    relation = `Your recent activity is broadly consistent with your current ${actual} rating level.`;
+  }
+  $("momentumDescription").textContent =
+    relation + ` Momentum Rating: ${result.momentumRating}, a CF-style estimate of recent performance.`;
+
+
+  $("acceptedCount").textContent = formatNumber(result.problems.length);
+  $("acceptedSub").textContent = `${result.accepted.length} accepted submissions`;
+  $("avgProblemRating").textContent = result.avgProblemRating ? Math.round(result.avgProblemRating) : "—";
+  $("activeDays").innerHTML = `${result.activeDays}<span>/30</span>`;
+  $("contestCount").textContent = result.contestCount;
+  $("contestSub").textContent = result.contestCount === 1 ? "rated contest" : "rated contests";
+
+  $("currentRating2").textContent = profile.rating ?? "—";
+  $("maxRating").textContent = profile.maxRating ?? "—";
+
+  const bars = $("bars");
+  bars.innerHTML = "";
+  for (const [name, value] of Object.entries(result.components)) {
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.innerHTML = `
+      <span>${name}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${value}%"></div></div>
+      <span class="bar-value">${value}%</span>
+    `;
+    bars.appendChild(row);
+  }
+
+  const list = $("contestList");
+  list.innerHTML = "";
+  if (!result.recentRatings.length) {
+    list.innerHTML = `<div class="contest-item"><span class="contest-name">No rated contests in the last 30 days</span><span class="contest-delta delta-flat">—</span></div>`;
+  } else {
+    result.recentRatings.slice().reverse().slice(0,5).forEach(r => {
+      const delta = r.newRating - r.oldRating;
+      const cls = delta > 0 ? "delta-up" : delta < 0 ? "delta-down" : "delta-flat";
+      const sign = delta > 0 ? "+" : "";
+      const row = document.createElement("div");
+      row.className = "contest-item";
+      row.innerHTML = `
+        <span class="contest-name">Contest #${r.contestId}</span>
+        <span class="contest-delta ${cls}">${sign}${delta} · ${r.newRating}</span>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  const analysis = $("performanceAnalysis");
+  analysis.classList.remove("hidden");
+  analysis.classList.remove("result-reveal");
+  void analysis.offsetWidth;
+  analysis.classList.add("result-reveal");
+
+  drawRatingChart(result.recentRatings);
+
+  fetchUpcomingContests()
+    .then(upcoming => {
+      renderContestForecasts(result, upcoming);
+      renderRealRatingForecast(result, upcoming);
+    })
+    .catch(err => {
+      console.error("Upcoming contests:", err);
+      renderContestForecasts(result, []);
+      renderRealRatingForecast(result, []);
+    });
+
+  window.scrollTo({top: $("dashboard").offsetTop - 25, behavior:"smooth"});
+}
+
+async function analyze(handle) {
+  handle = handle.trim();
+  if (!handle) return;
+  resetError();
+  $("dashboard").classList.add("hidden");
+  $("performanceAnalysis").classList.add("hidden");
+  showLoading(true);
+  $("analyzeBtn").disabled = true;
+
+  try {
+    setLoading("Fetching Codeforces profile...",1);
+    const users = await cf("user.info", {handles: handle});
+    if (!users.length) throw new Error("User not found.");
+    const profile = users[0];
+
+    setLoading("Fetching recent submissions...",2);
+    const submissions = await cf("user.status", {handle: profile.handle, from: 1, count: MAX_SUBMISSIONS});
+
+    setLoading("Fetching contest rating history...",3);
+    const ratings = await cf("user.rating", {handle: profile.handle});
+
+    setLoading("Applying momentum and rating eligibility rules...",4);
+    const enrichedRatings = await enrichRatingHistoryWithContestTypes(ratings);
+    const result = calculateMomentum(profile, submissions, enrichedRatings);
+    render(profile, result);
+  } catch (err) {
+    console.error(err);
+    showError(
+      "Could not analyze handle",
+      err.message.includes("limit") ?
+        "Codeforces API is rate-limiting requests. Wait a few seconds and try again." :
+        `Could not load all Codeforces data. Please try again. (${err.message})`
+    );
+  } finally {
+    showLoading(false);
+    $("analyzeBtn").disabled = false;
+  }
+}
+
+$("searchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  analyze($("handleInput").value);
+});
+
+document.querySelectorAll("[data-handle]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    $("handleInput").value = btn.dataset.handle;
+    analyze(btn.dataset.handle);
+  });
+});
+
+
+const versionEls = document.querySelectorAll("[data-site-version]");
+versionEls.forEach(el => el.textContent = SITE_VERSION);
+
+const themeToggle = $("themeToggle");
+const savedTheme = localStorage.getItem("cfdm-theme");
+if(savedTheme === "light") document.body.classList.add("light-theme");
+function updateThemeButton(){ if(themeToggle) themeToggle.innerHTML = document.body.classList.contains("light-theme") ? "☾ <span>Dark</span>" : "☼ <span>Light</span>"; }
+updateThemeButton();
+if(themeToggle) themeToggle.addEventListener("click",()=>{
+  document.body.classList.toggle("light-theme");
+  localStorage.setItem("cfdm-theme",document.body.classList.contains("light-theme")?"light":"dark");
+  const d=document.getElementById("dashboard");
+  if(d && !d.classList.contains("hidden")) { const r=window.__lastResult; const p=window.__lastProfile; if(r&&p) drawRatingChart(r.recentRatings); }
+  updateThemeButton();
+});
+window.addEventListener("resize",()=>{ const r=window.__lastResult,p=window.__lastProfile; if(r&&p&&!$("dashboard").classList.contains("hidden")) drawRatingChart(r.recentRatings); });
+
+window.addEventListener("load", () => {
+  const boot = $("bootLoader");
+  const main = $("siteMain");
+  setTimeout(() => {
+    if (boot) boot.classList.add("ready");
+    if (main) main.classList.add("ready");
+  }, 450);
+});
+
+  </script>
 </body>
 </html>
