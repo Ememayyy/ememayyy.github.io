@@ -664,8 +664,8 @@ body.light-theme{background:radial-gradient(800px 500px at 8% -8%,rgba(255,79,21
         </div>
         <div class="notice">
           This is a community-style metric, not an official Codeforces rating or ranking.
-          Very active users may exceed the first 1,000 recent submissions available to this
-          lightweight frontend analyzer.
+          Very active users may have many recent submissions; the analyzer reads up to 10,000
+          recent submissions and only counts the last 30 calendar days.
         </div>
       </div>
     </section>
@@ -731,7 +731,7 @@ body.light-theme{background:radial-gradient(800px 500px at 8% -8%,rgba(255,79,21
   <script id="github-pages-embedded-script">
 const API = "https://codeforces.com/api/";
 const DAYS = 30;
-const MAX_SUBMISSIONS = 1000;
+const MAX_SUBMISSIONS = 10000;
 const SITE_VERSION = "v9.0.0";
 
 const $ = (id) => document.getElementById(id);
@@ -854,8 +854,16 @@ function formatNumber(n) {
   return Number(n || 0).toLocaleString();
 }
 
-function daysAgo(sec) {
-  return Date.now()/1000 - sec <= DAYS * 86400;
+function getRecentWindowStartMs() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - (DAYS - 1));
+  return d.getTime();
+}
+
+function isInRecentWindow(sec) {
+  const t = Number(sec) * 1000;
+  return Number.isFinite(t) && t >= getRecentWindowStartMs() && t <= Date.now();
 }
 
 function percentileScore(value, low, high) {
@@ -863,13 +871,17 @@ function percentileScore(value, low, high) {
 }
 
 function calculateMomentum(profile, submissions, ratings) {
-  const recentSubs = submissions.filter(s => daysAgo(s.creationTimeSeconds));
-  const accepted = recentSubs.filter(s => s.verdict === "OK");
+  const recentSubs = (Array.isArray(submissions) ? submissions : [])
+    .filter(s => s && isInRecentWindow(s.creationTimeSeconds));
+
+  const accepted = recentSubs.filter(s => s.verdict === "OK" && s.problem);
 
   const uniqueAccepted = new Map();
   for (const s of accepted) {
     const p = s.problem;
-    const key = `${p.contestId ?? "gym"}:${p.index ?? p.name}`;
+    const key = p.contestId != null && p.index
+      ? `contest:${p.contestId}:${p.index}`
+      : `problem:${p.problemsetName || ""}:${p.index || ""}:${p.name || ""}`;
     if (!uniqueAccepted.has(key)) uniqueAccepted.set(key, p);
   }
 
@@ -880,11 +892,16 @@ function calculateMomentum(profile, submissions, ratings) {
   const maxProblemRating = ratedProblems.length
     ? Math.max(...ratedProblems.map(p => p.rating)) : 0;
 
-  const activeDays = new Set(
-    recentSubs.map(s => new Date(s.creationTimeSeconds * 1000).toISOString().slice(0,10))
-  ).size;
+  const activeDayKeys = new Set(
+    recentSubs.map(s => {
+      const d = new Date(s.creationTimeSeconds * 1000);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    })
+  );
+  const activeDays = Math.min(DAYS, activeDayKeys.size);
 
-  const recentRatings = ratings.filter(r => daysAgo(r.ratingUpdateTimeSeconds));
+  const recentRatings = (Array.isArray(ratings) ? ratings : [])
+    .filter(r => isInRecentWindow(r.ratingUpdateTimeSeconds));
   const contestCount = recentRatings.length;
   const avgContestRating = contestCount
     ? recentRatings.reduce((a,r) => a + r.newRating, 0) / contestCount : profile.rating || 0;
@@ -933,7 +950,7 @@ function calculateMomentum(profile, submissions, ratings) {
   if (!contestCount && !ratedProblems.length) momentumRating = Math.round((bounds[0] + bounds[1]) / 2);
 
   return {
-    recentSubs, accepted, problems, ratedProblems, avgProblemRating,
+    recentSubs, accepted, acceptedUniqueCount: problems.length, problems, ratedProblems, avgProblemRating,
     maxProblemRating, activeDays, contestCount, recentRatings,
     avgContestRating, contestPeak, score, rank, momentumRating,
     currentRating: profile.rating || 0,
@@ -1254,8 +1271,9 @@ function render(profile, result) {
     relation + ` Momentum Rating: ${result.momentumRating}, a CF-style estimate of recent performance.`;
 
 
-  $("acceptedCount").textContent = formatNumber(result.problems.length);
-  $("acceptedSub").textContent = `${result.accepted.length} accepted submissions`;
+  const acceptedUnique = Number(result.acceptedUniqueCount ?? result.problems.length ?? 0);
+  $("acceptedCount").textContent = formatNumber(acceptedUnique);
+  $("acceptedSub").textContent = "unique accepted problems";
   $("avgProblemRating").textContent = result.avgProblemRating ? Math.round(result.avgProblemRating) : "—";
   $("activeDays").innerHTML = `${result.activeDays}<span>/30</span>`;
   $("contestCount").textContent = result.contestCount;
